@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Core\Users\UseCases\RegisterUser;
 use App\Core\Users\UseCases\LoginUser;
+use Exception;
 
 class UserController extends Controller
 {
@@ -19,31 +20,39 @@ class UserController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'username' => 'required|string|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+            ]);
 
-        $user = $this->registerUser->execute($request->all());
+            $user = $this->registerUser->execute($request->all());
 
-        return response()->json(['user' => $user], 201);
+            return response()->json(['user' => $user], 201);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        try {
+            $request->validate([
+                'email' => 'required|string|email',
+                'password' => 'required|string',
+            ]);
 
-        $result = $this->loginUser->execute($request->all());
+            $result = $this->loginUser->execute($request->all());
 
-        if ($result['status'] === 1) {
-            return response()->json(['status' => 1, 'user' => $result['user'], 'token' => $result['token']], 200);
-        } else {
-            return response()->json(['status' => 0], 401);
+            if ($result['status'] === 1) {
+                return response()->json(['status' => 1, 'user' => $result['user'], 'token' => $result['token']], 200);
+            } else {
+                return response()->json(['status' => 0], 401);
+            }
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

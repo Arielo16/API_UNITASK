@@ -2,6 +2,8 @@
 
 namespace App\Core\Users\Entities;
 
+use Exception;
+
 class UserEntity
 {
     public $id;
@@ -13,6 +15,10 @@ class UserEntity
 
     public function __construct($id, $name, $username, $email, $password, $api_token)
     {
+        if (empty($id) || empty($name) || empty($username) || empty($email) || empty($password)) {
+            throw new Exception('Invalid UserEntity data');
+        }
+
         $this->id = $id;
         $this->name = $name;
         $this->username = $username;
