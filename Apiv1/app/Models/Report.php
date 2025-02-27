@@ -30,4 +30,24 @@ class Report extends Model
     {
         return $this->belongsTo(Room::class, 'roomID', 'roomID');
     }
+
+    public function good()
+    {
+        return $this->belongsTo(Good::class, 'goodID', 'goodID');
+    }
+
+    public function building()
+    {
+        return $this->belongsTo(Building::class, 'buildingID', 'buildingID');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'categoryID', 'categoryID');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id', 'id');
+    }
 }
