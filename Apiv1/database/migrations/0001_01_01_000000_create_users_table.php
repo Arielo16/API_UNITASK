@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -37,6 +38,28 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        // Insertar usuarios de prueba
+        DB::table('users')->insert([
+            [
+                'name' => 'User One',
+                'username' => 'userone',
+                'email' => 'userone@gmail.com',
+                'password' => bcrypt('12345678'),
+                'api_token' => Str::random(80),
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'Administrador',
+                'username' => 'admin',
+                'email' => 'admin@gmail.com',
+                'password' => bcrypt('12345678'),
+                'api_token' => Str::random(80),
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+        ]);
     }
 
     /**
