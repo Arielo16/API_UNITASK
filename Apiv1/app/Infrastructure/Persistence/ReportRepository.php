@@ -17,14 +17,14 @@ class ReportRepository implements ReportRepositoryInterface
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
-                    $report->building->name, // Obtener el nombre del edificio
-                    $report->room->name, // Obtener el nombre de la habitación
-                    $report->category->name, // Obtener el nombre de la categoría
-                    $report->good->name, // Obtener el nombre del bien
+                    $report->building->name, 
+                    $report->room->name, 
+                    $report->category->name, 
+                    $report->good->name, 
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, // Obtener el nombre de usuario
+                    $report->user->username, 
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties
@@ -43,14 +43,14 @@ class ReportRepository implements ReportRepositoryInterface
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
-                    $report->building->name, // Obtener el nombre del edificio
-                    $report->room->name, // Obtener el nombre de la habitación
-                    $report->category->name, // Obtener el nombre de la categoría
-                    $report->good->name, // Obtener el nombre del bien
+                    $report->building->name, 
+                    $report->room->name, 
+                    $report->category->name, 
+                    $report->good->name, 
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, // Obtener el nombre de usuario
+                    $report->user->username, 
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties
@@ -69,14 +69,14 @@ class ReportRepository implements ReportRepositoryInterface
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
-                    $report->building->name, // Obtener el nombre del edificio
-                    $report->room->name, // Obtener el nombre de la habitación
-                    $report->category->name, // Obtener el nombre de la categoría
-                    $report->good->name, // Obtener el nombre del bien
+                    $report->building->name, 
+                    $report->room->name,
+                    $report->category->name, 
+                    $report->good->name,
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, // Obtener el nombre de usuario
+                    $report->user->username, 
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties
@@ -94,14 +94,14 @@ class ReportRepository implements ReportRepositoryInterface
             return new ReportEntity(
                 $report->reportID,
                 $report->folio,
-                $report->buildingID, // Usar buildingID en lugar de buscar el nombre
-                $report->roomID, // Usar roomID en lugar de buscar el nombre
-                $report->categoryID, // Usar categoryID en lugar de buscar el nombre
+                $report->buildingID, 
+                $report->roomID, 
+                $report->categoryID,
                 $report->good->name,
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->id, // Usar id en lugar de buscar el nombre de usuario
+                $report->id, 
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties

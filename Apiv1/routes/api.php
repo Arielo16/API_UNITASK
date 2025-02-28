@@ -22,7 +22,7 @@ Route::prefix('reports')->group(function () {
     Route::get('/', [ReportController::class, 'index']);
     Route::get('/priority/{priority}', [ReportController::class, 'getByPriority']);
     Route::get('/status/{status}', [ReportController::class, 'getByStatus']);
-    Route::post('/create', [ReportController::class, 'create']);
+    Route::post('/create', [ReportController::class, 'create'])->middleware('file');
 });
 
 Route::prefix('rooms')->group(function () {

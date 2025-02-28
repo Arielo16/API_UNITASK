@@ -8,6 +8,7 @@ use App\Core\Reports\UseCases\GetReportsByPriority;
 use App\Core\Reports\UseCases\GetReportsByStatus;
 use App\Core\Reports\UseCases\CreateReport;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -64,14 +65,21 @@ class ReportController extends Controller
                 'goodID' => 'required|exists:goods,goodID',
                 'priority' => 'required|in:Immediate,Normal',
                 'description' => 'required|string',
-                'image' => 'nullable|string',
+                'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
                 'id' => 'required|exists:users,id',
                 'status' => 'required|in:Enviado,Diagnosticado,EnProceso,Terminado',
                 'requires_approval' => 'required|boolean',
                 'involve_third_parties' => 'required|boolean',
             ]);
 
-            $report = $this->createReport->execute($request->all());
+            $data = $request->all();
+
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('public/reports');
+                $data['image'] = Storage::url($path);
+            }
+
+            $report = $this->createReport->execute($data);
 
             return response()->json(['report' => $report], 201);
         } catch (Exception $e) {
