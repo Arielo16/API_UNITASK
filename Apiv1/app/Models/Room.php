@@ -17,4 +17,9 @@ class Room extends Model
         'buildingID',
         'typeID',
     ];
+
+    public function building()
+    {
+        return $this->belongsTo(Building::class, 'buildingID', 'buildingID');
+    }
 }

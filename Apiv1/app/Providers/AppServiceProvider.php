@@ -16,6 +16,16 @@ use App\Infrastructure\Persistence\ReportRepository;
 use App\Core\Reports\UseCases\GetAllReports;
 use App\Core\Reports\UseCases\GetReportsByPriority;
 use App\Core\Reports\UseCases\GetReportsByStatus;
+use App\Core\Reports\UseCases\CreateReport;
+use App\Core\Rooms\Repositories\RoomRepositoryInterface;
+use App\Infrastructure\Persistence\RoomRepository;
+use App\Core\Rooms\UseCases\GetRoomsByBuildingId;
+use App\Core\Categories\Repositories\CategoryRepositoryInterface;
+use App\Infrastructure\Persistence\CategoryRepository;
+use App\Core\Categories\UseCases\GetAllCategories;
+use App\Core\Goods\Repositories\GoodRepositoryInterface;
+use App\Infrastructure\Persistence\GoodRepository;
+use App\Core\Goods\UseCases\GetGoodsByCategoryId;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(UserRepositoryInterface::class, UserRepository::class);
         $this->app->singleton(BuildingRepositoryInterface::class, BuildingRepository::class);
         $this->app->singleton(ReportRepositoryInterface::class, ReportRepository::class);
+        $this->app->singleton(RoomRepositoryInterface::class, RoomRepository::class);
+        $this->app->singleton(CategoryRepositoryInterface::class, CategoryRepository::class);
+        $this->app->singleton(GoodRepositoryInterface::class, GoodRepository::class);
 
         $this->app->singleton(RegisterUser::class, function ($app) {
             return new RegisterUser($app->make(UserRepositoryInterface::class));
@@ -54,6 +67,22 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(GetReportsByStatus::class, function ($app) {
             return new GetReportsByStatus($app->make(ReportRepositoryInterface::class));
+        });
+
+        $this->app->singleton(CreateReport::class, function ($app) {
+            return new CreateReport($app->make(ReportRepositoryInterface::class));
+        });
+
+        $this->app->singleton(GetRoomsByBuildingId::class, function ($app) {
+            return new GetRoomsByBuildingId($app->make(RoomRepositoryInterface::class));
+        });
+
+        $this->app->singleton(GetAllCategories::class, function ($app) {
+            return new GetAllCategories($app->make(CategoryRepositoryInterface::class));
+        });
+
+        $this->app->singleton(GetGoodsByCategoryId::class, function ($app) {
+            return new GetGoodsByCategoryId($app->make(GoodRepositoryInterface::class));
         });
     }
 
