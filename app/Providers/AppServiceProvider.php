@@ -17,6 +17,7 @@ use App\Core\Reports\UseCases\GetAllReports;
 use App\Core\Reports\UseCases\GetReportsByPriority;
 use App\Core\Reports\UseCases\GetReportsByStatus;
 use App\Core\Reports\UseCases\CreateReport;
+use App\Core\Reports\UseCases\GetReportsByBuildingId;
 use App\Core\Rooms\Repositories\RoomRepositoryInterface;
 use App\Infrastructure\Persistence\RoomRepository;
 use App\Core\Rooms\UseCases\GetRoomsByBuildingId;
@@ -71,6 +72,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(CreateReport::class, function ($app) {
             return new CreateReport($app->make(ReportRepositoryInterface::class));
+        });
+
+        $this->app->singleton(GetReportsByBuildingId::class, function ($app) {
+            return new GetReportsByBuildingId($app->make(ReportRepositoryInterface::class));
         });
 
         $this->app->singleton(GetRoomsByBuildingId::class, function ($app) {

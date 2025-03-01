@@ -115,4 +115,32 @@ class ReportRepository implements ReportRepositoryInterface
     {
         return Report::max('reportID') + 1;
     }
+
+    public function getByBuildingId($buildingID): array
+    {
+        try {
+            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])
+                ->where('buildingID', $buildingID)
+                ->get();
+            return $reports->map(function ($report) {
+                return new ReportEntity(
+                    $report->reportID,
+                    $report->folio,
+                    $report->building->name, 
+                    $report->room->name, 
+                    $report->category->name, 
+                    $report->good->name, 
+                    $report->priority,
+                    $report->description,
+                    $report->image,
+                    $report->user->username, 
+                    $report->status,
+                    $report->requires_approval,
+                    $report->involve_third_parties
+                );
+            })->toArray();
+        } catch (Exception $e) {
+            throw new Exception('Error fetching reports by building ID: ' . $e->getMessage());
+        }
+    }
 }
