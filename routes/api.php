@@ -24,6 +24,7 @@ Route::prefix('reports')->group(function () {
     Route::get('/status/{status}', [ReportController::class, 'getByStatus']);
     Route::post('/create', [ReportController::class, 'create'])->middleware('file');
     Route::get('/building/{buildingID}', [ReportController::class, 'getByBuildingId']);
+    Route::get('/ordered/{order}', [ReportController::class, 'getOrderedByDate']); // Aqui se colocan los datos ya sea "desc" o "asc"
 });
 
 Route::prefix('rooms')->group(function () {

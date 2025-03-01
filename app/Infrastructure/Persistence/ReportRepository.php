@@ -6,6 +6,7 @@ use App\Models\Report;
 use App\Core\Reports\Entities\ReportEntity;
 use App\Core\Reports\Repositories\ReportRepositoryInterface;
 use Exception;
+use Carbon\Carbon;
 
 class ReportRepository implements ReportRepositoryInterface
 {
@@ -27,7 +28,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->user->username, 
                     $report->status,
                     $report->requires_approval,
-                    $report->involve_third_parties
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -53,7 +55,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->user->username, 
                     $report->status,
                     $report->requires_approval,
-                    $report->involve_third_parties
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -79,7 +82,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->user->username, 
                     $report->status,
                     $report->requires_approval,
-                    $report->involve_third_parties
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -136,11 +140,41 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->user->username, 
                     $report->status,
                     $report->requires_approval,
-                    $report->involve_third_parties
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
                 );
             })->toArray();
         } catch (Exception $e) {
             throw new Exception('Error fetching reports by building ID: ' . $e->getMessage());
+        }
+    }
+
+    public function getOrderedByDate($order): array
+    {
+        try {
+            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])
+                ->orderBy('created_at', $order)
+                ->get();
+            return $reports->map(function ($report) {
+                return new ReportEntity(
+                    $report->reportID,
+                    $report->folio,
+                    $report->building->name, 
+                    $report->room->name, 
+                    $report->category->name, 
+                    $report->good->name, 
+                    $report->priority,
+                    $report->description,
+                    $report->image,
+                    $report->user->username, 
+                    $report->status,
+                    $report->requires_approval,
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
+                );
+            })->toArray();
+        } catch (Exception $e) {
+            throw new Exception('Error fetching reports ordered by date: ' . $e->getMessage());
         }
     }
 }

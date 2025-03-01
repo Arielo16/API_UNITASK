@@ -8,6 +8,7 @@ use App\Core\Reports\UseCases\GetReportsByPriority;
 use App\Core\Reports\UseCases\GetReportsByStatus;
 use App\Core\Reports\UseCases\CreateReport;
 use App\Core\Reports\UseCases\GetReportsByBuildingId;
+use App\Core\Reports\UseCases\GetReportsOrderedByDate;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,19 +19,22 @@ class ReportController extends Controller
     private $getReportsByStatus;
     private $createReport;
     private $getReportsByBuildingId;
+    private $getReportsOrderedByDate;
 
     public function __construct(
         GetAllReports $getAllReports, 
         GetReportsByPriority $getReportsByPriority, 
         GetReportsByStatus $getReportsByStatus, 
         CreateReport $createReport,
-        GetReportsByBuildingId $getReportsByBuildingId
+        GetReportsByBuildingId $getReportsByBuildingId,
+        GetReportsOrderedByDate $getReportsOrderedByDate
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
         $this->getReportsByStatus = $getReportsByStatus;
         $this->createReport = $createReport;
         $this->getReportsByBuildingId = $getReportsByBuildingId;
+        $this->getReportsOrderedByDate = $getReportsOrderedByDate;
     }
 
     public function index()
@@ -100,6 +104,16 @@ class ReportController extends Controller
             $report = $this->createReport->execute($data);
 
             return response()->json(['report' => $report], 201);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getOrderedByDate($order)
+    {
+        try {
+            $reports = $this->getReportsOrderedByDate->execute($order);
+            return response()->json(['reports' => $reports], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

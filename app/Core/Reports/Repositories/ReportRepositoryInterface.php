@@ -10,4 +10,5 @@ interface ReportRepositoryInterface
     public function getByPriority(string $priority): array;
     public function getByStatus(string $status): array;
     public function getByBuildingId($buildingID): array;
+    public function getOrderedByDate($order): array;
 }
