@@ -9,7 +9,7 @@ class ReportEntity
     public $buildingID; 
     public $roomID; 
     public $categoryID; 
-    public $goodName; 
+    public $goodID; 
     public $priority;
     public $description;
     public $image;
@@ -19,14 +19,14 @@ class ReportEntity
     public $involve_third_parties;
     public $created_at; 
 
-    public function __construct($reportID, $folio, $buildingID, $roomID, $categoryID, $goodName, $priority, $description, $image, $id, $status, $requires_approval, $involve_third_parties, $created_at)
+    public function __construct($reportID, $folio, $buildingID, $roomID, $categoryID, $goodID, $priority, $description, $image, $id, $status, $requires_approval, $involve_third_parties, $created_at)
     {
         $this->reportID = $reportID;
         $this->folio = $folio;
         $this->buildingID = $buildingID; 
         $this->roomID = $roomID; 
         $this->categoryID = $categoryID; 
-        $this->goodName = $goodName; 
+        $this->goodID = $goodID; 
         $this->priority = $priority;
         $this->description = $description;
         $this->image = $image;

@@ -20,6 +20,7 @@ use App\Core\Reports\UseCases\CreateReport;
 use App\Core\Reports\UseCases\GetReportsByBuildingId;
 use App\Core\Reports\UseCases\GetReportsOrderedByDate;
 use App\Core\Reports\UseCases\GetReportByFolio;
+use App\Core\Reports\UseCases\UpdateReport;
 use App\Core\Rooms\Repositories\RoomRepositoryInterface;
 use App\Infrastructure\Persistence\RoomRepository;
 use App\Core\Rooms\UseCases\GetRoomsByBuildingId;
@@ -86,6 +87,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(GetReportByFolio::class, function ($app) {
             return new GetReportByFolio($app->make(ReportRepositoryInterface::class));
+        });
+
+        $this->app->singleton(UpdateReport::class, function ($app) {
+            return new UpdateReport($app->make(ReportRepositoryInterface::class));
         });
 
         $this->app->singleton(GetRoomsByBuildingId::class, function ($app) {

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('description'); 
             $table->mediumText('image')->nullable(); 
             $table->unsignedBigInteger('id'); 
-            $table->enum('status', ['Enviado', 'Diagnosticado', 'En Proceso', 'Terminado']); 
+            $table->enum('status', ['Enviado', 'Diagnosticado', 'En Proceso', 'Terminado']); // Opciones
             $table->boolean('requires_approval')->default(false); //Requiere aprovación
             $table->boolean('involve_third_parties')->default(false); //Involucra a terceros
             $table->timestamps(); 

@@ -10,6 +10,7 @@ use App\Core\Reports\UseCases\CreateReport;
 use App\Core\Reports\UseCases\GetReportsByBuildingId;
 use App\Core\Reports\UseCases\GetReportsOrderedByDate;
 use App\Core\Reports\UseCases\GetReportByFolio;
+use App\Core\Reports\UseCases\UpdateReport;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
@@ -22,6 +23,7 @@ class ReportController extends Controller
     private $getReportsByBuildingId;
     private $getReportsOrderedByDate;
     private $getReportByFolio;
+    private $updateReport;
 
     public function __construct(
         GetAllReports $getAllReports, 
@@ -30,7 +32,8 @@ class ReportController extends Controller
         CreateReport $createReport,
         GetReportsByBuildingId $getReportsByBuildingId,
         GetReportsOrderedByDate $getReportsOrderedByDate,
-        GetReportByFolio $getReportByFolio
+        GetReportByFolio $getReportByFolio,
+        UpdateReport $updateReport
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
@@ -39,6 +42,7 @@ class ReportController extends Controller
         $this->getReportsByBuildingId = $getReportsByBuildingId;
         $this->getReportsOrderedByDate = $getReportsOrderedByDate;
         $this->getReportByFolio = $getReportByFolio;
+        $this->updateReport = $updateReport;
     }
 
     public function index()
@@ -93,7 +97,7 @@ class ReportController extends Controller
                 'description' => 'required|string',
                 'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
                 'id' => 'required|exists:users,id',
-                'status' => 'required|in:Enviado,Diagnosticado,EnProceso,Terminado',
+                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
                 'requires_approval' => 'required|boolean',
                 'involve_third_parties' => 'required|boolean',
             ]);
@@ -127,6 +131,38 @@ class ReportController extends Controller
     {
         try {
             $report = $this->getReportByFolio->execute($folio);
+            return response()->json(['report' => $report], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update(Request $request, $reportID)
+    {
+        try {
+            $request->validate([
+                'buildingID' => 'required|exists:buildings,buildingID',
+                'roomID' => 'required|exists:rooms,roomID',
+                'categoryID' => 'required|exists:categories,categoryID',
+                'goodID' => 'required|exists:goods,goodID',
+                'priority' => 'required|in:Immediate,Normal',
+                'description' => 'required|string',
+                'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'id' => 'required|exists:users,id',
+                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
+                'requires_approval' => 'required|boolean',
+                'involve_third_parties' => 'required|boolean',
+            ]);
+
+            $data = $request->all();
+
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('public/reports');
+                $data['image'] = Storage::url($path);
+            }
+
+            $report = $this->updateReport->execute($reportID, $data);
+
             return response()->json(['report' => $report], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
