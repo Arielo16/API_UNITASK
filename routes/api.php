@@ -27,6 +27,7 @@ Route::prefix('reports')->group(function () {
     Route::get('/ordered/{order}', [ReportController::class, 'getOrderedByDate']); // Aqui se colocan los datos ya sea "desc" o "asc"
     Route::get('/folio/{folio}', [ReportController::class, 'getByFolio']);
     Route::put('/update/{reportID}', [ReportController::class, 'update']);
+    Route::put('/update-status/{reportID}', [ReportController::class, 'updateStatus']);
 });
 
 Route::prefix('rooms')->group(function () {

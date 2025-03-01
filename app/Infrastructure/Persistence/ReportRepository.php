@@ -233,4 +233,31 @@ class ReportRepository implements ReportRepositoryInterface
             throw new Exception('Error updating report: ' . $e->getMessage());
         }
     }
+
+    public function updateStatus($reportID, string $status): ReportEntity
+    {
+        try {
+            $report = Report::findOrFail($reportID);
+            $report->status = $status;
+            $report->save();
+            return new ReportEntity(
+                $report->reportID,
+                $report->folio,
+                $report->buildingID, 
+                $report->roomID, 
+                $report->categoryID, 
+                $report->goodID, 
+                $report->priority,
+                $report->description,
+                $report->image,
+                $report->id, 
+                $report->status,
+                $report->requires_approval,
+                $report->involve_third_parties,
+                Carbon::parse($report->created_at)->format('Y-m-d H:i')
+            );
+        } catch (Exception $e) {
+            throw new Exception('Error updating report status: ' . $e->getMessage());
+        }
+    }
 }

@@ -11,6 +11,7 @@ use App\Core\Reports\UseCases\GetReportsByBuildingId;
 use App\Core\Reports\UseCases\GetReportsOrderedByDate;
 use App\Core\Reports\UseCases\GetReportByFolio;
 use App\Core\Reports\UseCases\UpdateReport;
+use App\Core\Reports\UseCases\UpdateReportStatus;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +25,7 @@ class ReportController extends Controller
     private $getReportsOrderedByDate;
     private $getReportByFolio;
     private $updateReport;
+    private $updateReportStatus;
 
     public function __construct(
         GetAllReports $getAllReports, 
@@ -33,7 +35,8 @@ class ReportController extends Controller
         GetReportsByBuildingId $getReportsByBuildingId,
         GetReportsOrderedByDate $getReportsOrderedByDate,
         GetReportByFolio $getReportByFolio,
-        UpdateReport $updateReport
+        UpdateReport $updateReport,
+        UpdateReportStatus $updateReportStatus
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
@@ -43,6 +46,7 @@ class ReportController extends Controller
         $this->getReportsOrderedByDate = $getReportsOrderedByDate;
         $this->getReportByFolio = $getReportByFolio;
         $this->updateReport = $updateReport;
+        $this->updateReportStatus = $updateReportStatus;
     }
 
     public function index()
@@ -162,6 +166,22 @@ class ReportController extends Controller
             }
 
             $report = $this->updateReport->execute($reportID, $data);
+
+            return response()->json(['report' => $report], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateStatus(Request $request, $reportID)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
+            ]);
+
+            $status = $request->input('status');
+            $report = $this->updateReportStatus->execute($reportID, $status);
 
             return response()->json(['report' => $report], 200);
         } catch (Exception $e) {

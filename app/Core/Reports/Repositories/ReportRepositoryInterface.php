@@ -13,4 +13,5 @@ interface ReportRepositoryInterface
     public function getOrderedByDate($order): array;
     public function getByFolio($folio): ?ReportEntity;
     public function update($reportID, array $data): ReportEntity;
+    public function updateStatus($reportID, string $status): ReportEntity;
 }
