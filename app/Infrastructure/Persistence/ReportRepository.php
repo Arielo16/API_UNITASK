@@ -29,7 +29,7 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -56,7 +56,7 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -83,7 +83,7 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -141,7 +141,7 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -170,7 +170,7 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i:s')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
                 );
             })->toArray();
         } catch (Exception $e) {
