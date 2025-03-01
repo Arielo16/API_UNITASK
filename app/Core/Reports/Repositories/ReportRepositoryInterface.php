@@ -11,4 +11,5 @@ interface ReportRepositoryInterface
     public function getByStatus(string $status): array;
     public function getByBuildingId($buildingID): array;
     public function getOrderedByDate($order): array;
+    public function getByFolio($folio): ?ReportEntity;
 }

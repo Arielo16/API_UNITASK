@@ -177,4 +177,34 @@ class ReportRepository implements ReportRepositoryInterface
             throw new Exception('Error fetching reports ordered by date: ' . $e->getMessage());
         }
     }
+
+    public function getByFolio($folio): ?ReportEntity
+    {
+        try {
+            $report = Report::with(['room', 'good', 'building', 'category', 'user'])
+                ->where('folio', $folio)
+                ->first();
+            if ($report) {
+                return new ReportEntity(
+                    $report->reportID,
+                    $report->folio,
+                    $report->building->name, 
+                    $report->room->name, 
+                    $report->category->name, 
+                    $report->good->name, 
+                    $report->priority,
+                    $report->description,
+                    $report->image,
+                    $report->user->username, 
+                    $report->status,
+                    $report->requires_approval,
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                );
+            }
+            return null;
+        } catch (Exception $e) {
+            throw new Exception('Error fetching report by folio: ' . $e->getMessage());
+        }
+    }
 }

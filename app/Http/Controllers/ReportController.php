@@ -9,6 +9,7 @@ use App\Core\Reports\UseCases\GetReportsByStatus;
 use App\Core\Reports\UseCases\CreateReport;
 use App\Core\Reports\UseCases\GetReportsByBuildingId;
 use App\Core\Reports\UseCases\GetReportsOrderedByDate;
+use App\Core\Reports\UseCases\GetReportByFolio;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,6 +21,7 @@ class ReportController extends Controller
     private $createReport;
     private $getReportsByBuildingId;
     private $getReportsOrderedByDate;
+    private $getReportByFolio;
 
     public function __construct(
         GetAllReports $getAllReports, 
@@ -27,7 +29,8 @@ class ReportController extends Controller
         GetReportsByStatus $getReportsByStatus, 
         CreateReport $createReport,
         GetReportsByBuildingId $getReportsByBuildingId,
-        GetReportsOrderedByDate $getReportsOrderedByDate
+        GetReportsOrderedByDate $getReportsOrderedByDate,
+        GetReportByFolio $getReportByFolio
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
@@ -35,6 +38,7 @@ class ReportController extends Controller
         $this->createReport = $createReport;
         $this->getReportsByBuildingId = $getReportsByBuildingId;
         $this->getReportsOrderedByDate = $getReportsOrderedByDate;
+        $this->getReportByFolio = $getReportByFolio;
     }
 
     public function index()
@@ -114,6 +118,16 @@ class ReportController extends Controller
         try {
             $reports = $this->getReportsOrderedByDate->execute($order);
             return response()->json(['reports' => $reports], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getByFolio($folio)
+    {
+        try {
+            $report = $this->getReportByFolio->execute($folio);
+            return response()->json(['report' => $report], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
