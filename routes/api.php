@@ -9,8 +9,10 @@ use App\Http\Controllers\GoodController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->group(function () {
-    Route::post('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login']);
+
+    //Estos pueden ser solo para admins o servicios generales
+    Route::post('/register', [UserController::class, 'register']);
 });
 
 Route::prefix('buildings')->group(function () {
@@ -27,6 +29,8 @@ Route::prefix('reports')->group(function () {
     Route::get('/ordered/{order}', [ReportController::class, 'getOrderedByDate']); // Aqui se colocan los datos ya sea "desc" o "asc"
     Route::get('/folio/{folio}', [ReportController::class, 'getByFolio']);
     Route::put('/update/{reportID}', [ReportController::class, 'update']);
+
+    //Estos pueden ser solo para admins o servicios generales
     Route::put('/update-status/{reportID}', [ReportController::class, 'updateStatus']);
 });
 
