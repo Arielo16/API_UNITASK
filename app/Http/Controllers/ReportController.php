@@ -14,6 +14,7 @@ use App\Core\Reports\UseCases\UpdateReport;
 use App\Core\Reports\UseCases\UpdateReportStatus;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -99,22 +100,22 @@ class ReportController extends Controller
                 'goodID' => 'required|exists:goods,goodID',
                 'priority' => 'required|in:Immediate,Normal',
                 'description' => 'required|string',
-                'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048', // Validar imagen
                 'id' => 'required|exists:users,id',
                 'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
                 'requires_approval' => 'required|boolean',
                 'involve_third_parties' => 'required|boolean',
             ]);
-
+    
             $data = $request->all();
-
+    
             if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('public/reports');
+                $path = $request->file('image')->store('reports', 'public');
                 $data['image'] = Storage::url($path);
             }
 
             $report = $this->createReport->execute($data);
-
+    
             return response()->json(['report' => $report], 201);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -151,7 +152,7 @@ class ReportController extends Controller
                 'goodID' => 'required|exists:goods,goodID',
                 'priority' => 'required|in:Immediate,Normal',
                 'description' => 'required|string',
-                'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048', // Validar imagen
                 'id' => 'required|exists:users,id',
                 'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
                 'requires_approval' => 'required|boolean',
@@ -160,8 +161,18 @@ class ReportController extends Controller
 
             $data = $request->all();
 
+            // Obtener el reporte existente
+            $existingReport = $this->getReportByFolio->execute($reportID);
+
             if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('public/reports');
+                // Eliminar la imagen antigua si existe
+                if ($existingReport && $existingReport->image) {
+                    $oldImagePath = str_replace('/storage', 'public', $existingReport->image);
+                    Storage::delete($oldImagePath);
+                }
+
+                // Guardar la nueva imagen
+                $path = $request->file('image')->store('reports', 'public');
                 $data['image'] = Storage::url($path);
             }
 

@@ -31,6 +31,13 @@ use App\Core\Categories\UseCases\GetAllCategories;
 use App\Core\Goods\Repositories\GoodRepositoryInterface;
 use App\Infrastructure\Persistence\GoodRepository;
 use App\Core\Goods\UseCases\GetGoodsByCategoryId;
+use App\Core\Diagnostics\Repositories\DiagnosticRepositoryInterface;
+use App\Infrastructure\Persistence\DiagnosticRepository;
+use App\Core\Diagnostics\UseCases\CreateDiagnostic;
+use App\Core\Diagnostics\UseCases\GetDiagnosticByReportID;
+use App\Core\Diagnostics\UseCases\UpdateDiagnosticStatus;
+use App\Core\Materials\Repositories\MaterialRepositoryInterface;
+use App\Infrastructure\Persistence\MaterialRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,6 +52,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(RoomRepositoryInterface::class, RoomRepository::class);
         $this->app->singleton(CategoryRepositoryInterface::class, CategoryRepository::class);
         $this->app->singleton(GoodRepositoryInterface::class, GoodRepository::class);
+        $this->app->singleton(DiagnosticRepositoryInterface::class, DiagnosticRepository::class);
+        $this->app->singleton(MaterialRepositoryInterface::class, MaterialRepository::class);
 
         $this->app->singleton(RegisterUser::class, function ($app) {
             return new RegisterUser($app->make(UserRepositoryInterface::class));
@@ -108,6 +117,21 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(GetGoodsByCategoryId::class, function ($app) {
             return new GetGoodsByCategoryId($app->make(GoodRepositoryInterface::class));
+        });
+
+        $this->app->singleton(CreateDiagnostic::class, function ($app) {
+            return new CreateDiagnostic(
+                $app->make(DiagnosticRepositoryInterface::class),
+                $app->make(MaterialRepositoryInterface::class)
+            );
+        });
+
+        $this->app->singleton(GetDiagnosticByReportID::class, function ($app) {
+            return new GetDiagnosticByReportID($app->make(DiagnosticRepositoryInterface::class));
+        });
+
+        $this->app->singleton(UpdateDiagnosticStatus::class, function ($app) {
+            return new UpdateDiagnosticStatus($app->make(DiagnosticRepositoryInterface::class));
         });
     }
 

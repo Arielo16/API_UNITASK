@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id('diagnosticID'); 
             $table->unsignedBigInteger('reportID');
             $table->text('description');
-            $table->mediumText('images');
+            $table->mediumText('images')->nullable(); // Permitir valores nulos
             $table->enum('status', ['Enviado', 'Para Reparar', 'En Proceso', 'Terminado']);
             $table->timestamps();
 

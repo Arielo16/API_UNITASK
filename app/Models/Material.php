@@ -13,9 +13,9 @@ class Material extends Model
 
     protected $fillable = [
         'name',
-        'supplier',
-        'quantity',
-        'price',
+        'supplier', //Proveedor
+        'quantity', //Cantidad
+        'price', //Precio
         'diagnosticID',
     ];
 

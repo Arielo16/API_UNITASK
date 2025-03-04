@@ -101,14 +101,15 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->buildingID, 
                 $report->roomID, 
                 $report->categoryID,
-                $report->good->name,
+                $report->goodID, 
                 $report->priority,
                 $report->description,
                 $report->image,
                 $report->id, 
                 $report->status,
                 $report->requires_approval,
-                $report->involve_third_parties
+                $report->involve_third_parties,
+                Carbon::parse($report->created_at)->format('Y-m-d H:i')
             );
         } catch (Exception $e) {
             throw new Exception('Error creating report: ' . $e->getMessage());
