@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('goodID'); 
             $table->enum('priority', ['Immediate', 'Normal']); 
             $table->text('description'); 
-            $table->mediumText('image')->nullable(); 
+            $table->longText('image')->nullable(); // Cambiar a longText
             $table->unsignedBigInteger('id'); 
             $table->enum('status', ['Enviado', 'Diagnosticado', 'En Proceso', 'Terminado']); // Opciones
             $table->boolean('requires_approval')->default(false); //Requiere aprovación

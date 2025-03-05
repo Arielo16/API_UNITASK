@@ -17,10 +17,8 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
             if (empty($data['images'])) {
                 $data['images'] = null; 
             }
-            if (isset($data['materialIDs'])) {
-                $data['materialIDs'] = json_encode($data['materialIDs']); // Convertir a JSON
-            }
             $diagnostic = Diagnostic::create($data);
+            $material = $data['materialID'] ? Material::find($data['materialID']) : null;
             return new DiagnosticEntity(
                 $diagnostic->diagnosticID,
                 $diagnostic->reportID,
@@ -29,7 +27,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                 $diagnostic->status,
                 Carbon::parse($diagnostic->created_at)->format('Y-m-d H:i'), 
                 Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
-                json_decode($diagnostic->materialIDs, true) // Convertir de JSON a array
+                $material ? [$material->toArray()] : [] // Incluir material si existe
             );
         } catch (Exception $e) {
             throw new Exception('Error creating diagnostic: ' . $e->getMessage());
@@ -41,9 +39,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
         try {
             $diagnostic = Diagnostic::where('reportID', $reportID)->first();
             if ($diagnostic) {
-                $materialIDs = json_decode($diagnostic->materialIDs, true);
-                $materials = Material::whereIn('materialID', $materialIDs)->get(['materialID', 'name', 'supplier', 'quantity', 'price'])->toArray();
-
+                $material = $diagnostic->materialID ? Material::find($diagnostic->materialID) : null;
                 return new DiagnosticEntity(
                     $diagnostic->diagnosticID,
                     $diagnostic->reportID,
@@ -52,7 +48,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                     $diagnostic->status,
                     Carbon::parse($diagnostic->created_at)->format('Y-m-d H:i'),
                     Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
-                    $materials // Incluir materiales sin created_at y updated_at
+                    $material ? [$material->toArray()] : [] // Incluir material si existe
                 );
             }
             return null;
@@ -67,9 +63,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
             $diagnostic = Diagnostic::where('reportID', $reportID)->firstOrFail();
             $diagnostic->status = $status;
             $diagnostic->save();
-            $materialIDs = json_decode($diagnostic->materialIDs, true);
-            $materials = Material::whereIn('materialID', $materialIDs)->get(['materialID', 'name', 'supplier', 'quantity', 'price'])->toArray();
-
+            $material = $diagnostic->materialID ? Material::find($diagnostic->materialID) : null;
             return new DiagnosticEntity(
                 $diagnostic->diagnosticID,
                 $diagnostic->reportID,
@@ -78,7 +72,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                 $diagnostic->status,
                 Carbon::parse($diagnostic->created_at)->format('Y-m-d H:i'),
                 Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
-                $materials // Incluir materiales sin created_at y updated_at
+                $material ? [$material->toArray()] : [] // Incluir material si existe
             );
         } catch (Exception $e) {
             throw new Exception('Error updating diagnostic status: ' . $e->getMessage());
@@ -113,8 +107,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
         try {
             $diagnostics = Diagnostic::where('status', $status)->get();
             return $diagnostics->map(function ($diagnostic) {
-                $materialIDs = json_decode($diagnostic->materialIDs, true);
-                $materials = Material::whereIn('materialID', $materialIDs)->get(['materialID', 'name', 'supplier', 'quantity', 'price'])->toArray();
+                $material = $diagnostic->materialID ? Material::find($diagnostic->materialID) : null;
                 return new DiagnosticEntity(
                     $diagnostic->diagnosticID,
                     $diagnostic->reportID,
@@ -123,7 +116,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                     $diagnostic->status,
                     Carbon::parse($diagnostic->created_at)->format('Y-m-d H:i'),
                     Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
-                    $materials // Incluir materiales sin created_at y updated_at
+                    $material ? [$material->toArray()] : [] // Incluir material si existe
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -136,8 +129,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
         try {
             $diagnostics = Diagnostic::orderBy('created_at', $order)->get();
             return $diagnostics->map(function ($diagnostic) {
-                $materialIDs = json_decode($diagnostic->materialIDs, true);
-                $materials = Material::whereIn('materialID', $materialIDs)->get(['materialID', 'name', 'supplier', 'quantity', 'price'])->toArray();
+                $material = $diagnostic->materialID ? Material::find($diagnostic->materialID) : null;
                 return new DiagnosticEntity(
                     $diagnostic->diagnosticID,
                     $diagnostic->reportID,
@@ -146,7 +138,7 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                     $diagnostic->status,
                     Carbon::parse($diagnostic->created_at)->format('Y-m-d H:i'),
                     Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
-                    $materials // Incluir materiales sin created_at y updated_at
+                    $material ? [$material->toArray()] : [] // Incluir material si existe
                 );
             })->toArray();
         } catch (Exception $e) {

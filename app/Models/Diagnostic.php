@@ -16,6 +16,7 @@ class Diagnostic extends Model
         'description',
         'images',
         'status',
+        'materialID',
     ];
 
     public function report()

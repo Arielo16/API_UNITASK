@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('reportID');
             $table->json('materialIDs')->nullable(); // Cambiar a JSON para múltiples materialIDs
             $table->text('description');
-            $table->mediumText('images')->nullable(); // Permitir valores nulos
+            $table->longText('images')->nullable(); // Permitir valores nulos
             $table->enum('status', ['Enviado', 'Para Reparar', 'En Proceso', 'Terminado']);
             $table->timestamps();
 

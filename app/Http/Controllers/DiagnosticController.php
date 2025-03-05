@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Report;
 use App\Core\Diagnostics\UseCases\CreateDiagnostic;
 use App\Core\Diagnostics\UseCases\GetDiagnosticByReportID;
 use App\Core\Diagnostics\UseCases\UpdateDiagnosticStatus;
 use App\Core\Diagnostics\UseCases\GetDiagnosticsByStatus;
-use App\Core\Diagnostics\UseCases\GetDiagnosticsOrderedByDate; // Importar el nuevo caso de uso
+use App\Core\Diagnostics\UseCases\GetDiagnosticsOrderedByDate;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class DiagnosticController extends Controller
 {
@@ -16,48 +19,57 @@ class DiagnosticController extends Controller
     private $getDiagnosticByReportID;
     private $updateDiagnosticStatus;
     private $getDiagnosticsByStatus;
-    private $getDiagnosticsOrderedByDate; // Agregar la propiedad
+    private $getDiagnosticsOrderedByDate;
 
     public function __construct(
         CreateDiagnostic $createDiagnostic,
         GetDiagnosticByReportID $getDiagnosticByReportID,
         UpdateDiagnosticStatus $updateDiagnosticStatus,
         GetDiagnosticsByStatus $getDiagnosticsByStatus,
-        GetDiagnosticsOrderedByDate $getDiagnosticsOrderedByDate // Inyectar el nuevo caso de uso
+        GetDiagnosticsOrderedByDate $getDiagnosticsOrderedByDate
     ) {
         $this->createDiagnostic = $createDiagnostic;
         $this->getDiagnosticByReportID = $getDiagnosticByReportID;
         $this->updateDiagnosticStatus = $updateDiagnosticStatus;
         $this->getDiagnosticsByStatus = $getDiagnosticsByStatus;
-        $this->getDiagnosticsOrderedByDate = $getDiagnosticsOrderedByDate; // Asignar la propiedad
+        $this->getDiagnosticsOrderedByDate = $getDiagnosticsOrderedByDate;
     }
 
     public function create(Request $request)
     {
         try {
-            $request->validate([
+            $validatedData = $request->validate([
                 'reportID' => 'required|exists:reports,reportID',
                 'description' => 'required|string',
-                'images' => 'nullable|string', // Permitir valores nulos
+                'images' => 'nullable|file|mimes:png,jpeg,jpg', // Validar como archivo .png, .jpeg, .jpg
                 'status' => 'required|in:Enviado,Para Reparar,En Proceso,Terminado',
-                'materialIDs' => 'nullable|array', // Validar materialIDs como array
-                'materialIDs.*' => 'integer|exists:materials,materialID', // Validar cada materialID
+                'materialID' => 'nullable|integer|exists:materials,materialID', // Validar materialID
             ]);
 
-            $data = $request->all();
-            if (empty($data['images'])) {
-                $data['images'] = null; // Asignar null si no se proporciona una imagen
+            if ($request->hasFile('images')) {
+                $image = $request->file('images');
+                $imageContent = base64_encode(file_get_contents($image->getRealPath()));
+                $validatedData['images'] = $imageContent; // Guardar la imagen en base64
+            } else {
+                $validatedData['images'] = null; // Asignar null si no se proporciona una imagen
             }
 
-            // Validar que no exista otro diagnóstico con el mismo reportID
-            $existingDiagnostic = $this->getDiagnosticByReportID->execute($data['reportID']);
-            if ($existingDiagnostic) {
-                return response()->json(['error' => 'A diagnostic already exists for this report ID'], 400);
-            }
+            $diagnosticID = DB::table('diagnostics')->insertGetId([
+                'reportID' => $validatedData['reportID'],
+                'description' => $validatedData['description'],
+                'images' => $validatedData['images'],
+                'status' => $validatedData['status'],
+                'materialID' => $validatedData['materialID'] ?? null, // Asignar materialID si se proporciona
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-            $diagnostic = $this->createDiagnostic->execute($data);
+            // Actualizar el estado del reporte a "Diagnosticado"
+            $report = Report::findOrFail($validatedData['reportID']);
+            $report->status = 'Diagnosticado';
+            $report->save();
 
-            return response()->json(['diagnostic' => $diagnostic], 201);
+            return response()->json(['diagnosticID' => $diagnosticID], 201);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -67,6 +79,9 @@ class DiagnosticController extends Controller
     {
         try {
             $diagnostic = $this->getDiagnosticByReportID->execute($reportID);
+            if ($diagnostic && $diagnostic->images) {
+                $diagnostic->images = base64_encode(Storage::disk('public')->get($diagnostic->images));
+            }
             return response()->json(['diagnostic' => $diagnostic], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -93,6 +108,11 @@ class DiagnosticController extends Controller
     {
         try {
             $diagnostics = $this->getDiagnosticsByStatus->execute($status);
+            foreach ($diagnostics as $diagnostic) {
+                if ($diagnostic->images) {
+                    $diagnostic->images = base64_encode(Storage::disk('public')->get($diagnostic->images));
+                }
+            }
             return response()->json(['diagnostics' => $diagnostics], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -103,6 +123,11 @@ class DiagnosticController extends Controller
     {
         try {
             $diagnostics = $this->getDiagnosticsOrderedByDate->execute($order);
+            foreach ($diagnostics as $diagnostic) {
+                if ($diagnostic->images) {
+                    $diagnostic->images = base64_encode(Storage::disk('public')->get($diagnostic->images));
+                }
+            }
             return response()->json(['diagnostics' => $diagnostics], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

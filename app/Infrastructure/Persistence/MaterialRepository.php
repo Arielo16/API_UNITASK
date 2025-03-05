@@ -25,4 +25,9 @@ class MaterialRepository implements MaterialRepositoryInterface
             throw new Exception('Error creating material: ' . $e->getMessage());
         }
     }
+
+    public function find($materialID)
+    {
+        return Material::find($materialID);
+    }
 }

@@ -16,7 +16,13 @@ class Material extends Model
         'supplier',
         'quantity',
         'price',
+        'diagnosticID',
+        'created_at',
+        'updated_at',
     ];
 
-    // Eliminar la relación con Report
+    public function diagnostics()
+    {
+        return $this->hasMany(Diagnostic::class, 'materialID');
+    }
 }
