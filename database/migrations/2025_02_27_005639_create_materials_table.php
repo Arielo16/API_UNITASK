@@ -15,10 +15,7 @@ return new class extends Migration
             $table->string('supplier'); // Este es el proveedor
             $table->integer('quantity'); 
             $table->decimal('price', 10, 2); 
-            $table->unsignedBigInteger('diagnosticID'); 
             $table->timestamps();
-
-            $table->foreign('diagnosticID')->references('diagnosticID')->on('diagnostics')->onDelete('cascade');
         });
 
         DB::table('materials')->insert([
@@ -27,7 +24,6 @@ return new class extends Migration
                 'supplier' => 'Wood Suppliers Inc.',
                 'quantity' => 50,
                 'price' => 15.00,
-                'diagnosticID' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -36,7 +32,6 @@ return new class extends Migration
                 'supplier' => 'Aluminum Co.',
                 'quantity' => 30,
                 'price' => 25.00,
-                'diagnosticID' => 2,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -45,7 +40,6 @@ return new class extends Migration
                 'supplier' => 'Electrical Supplies Ltd.',
                 'quantity' => 100,
                 'price' => 5.00,
-                'diagnosticID' => 3,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -54,7 +48,6 @@ return new class extends Migration
                 'supplier' => 'Glassworks',
                 'quantity' => 20,
                 'price' => 50.00,
-                'diagnosticID' => 4,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -63,7 +56,6 @@ return new class extends Migration
                 'supplier' => 'Plumbing Supplies Co.',
                 'quantity' => 40,
                 'price' => 10.00,
-                'diagnosticID' => 5,
                 'created_at' => now(),
                 'updated_at' => now()
             ],

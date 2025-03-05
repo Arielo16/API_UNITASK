@@ -16,6 +16,7 @@ Route::prefix('users')->group(function () {
     Route::post('/register', [UserController::class, 'register']);
 });
 
+
 Route::prefix('buildings')->group(function () {
     Route::get('/', [BuildingController::class, 'index']);
     Route::get('/{id}', [BuildingController::class, 'show']);
@@ -56,16 +57,25 @@ Route::prefix('rooms')->group(function () {
     Route::get('/building/{buildingID}', [RoomController::class, 'getByBuildingId']);
 });
 
+
 Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);
 });
+
 
 Route::prefix('goods')->group(function () {
     Route::get('/category/{categoryID}', [GoodController::class, 'getByCategoryId']);
 });
 
+
 Route::prefix('diagnostics')->group(function () {
     Route::post('/create', [DiagnosticController::class, 'create']);
     Route::get('/report/{reportID}', [DiagnosticController::class, 'getByReportID']);
     Route::put('/update-status/{reportID}', [DiagnosticController::class, 'updateStatus']);
+
+    //Filtro: Buscar por estatus [Enviado, Para Reparar, En Proceso, Terminado]
+    Route::get('/status/{status}', [DiagnosticController::class, 'getByStatus']); 
+
+    //Filtros: Buscar por fecha de creación [asc, desc]
+    Route::get('/ordered/{order}', [DiagnosticController::class, 'getOrderedByDate']);
 });

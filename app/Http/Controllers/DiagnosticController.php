@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Core\Diagnostics\UseCases\CreateDiagnostic;
 use App\Core\Diagnostics\UseCases\GetDiagnosticByReportID;
 use App\Core\Diagnostics\UseCases\UpdateDiagnosticStatus;
+use App\Core\Diagnostics\UseCases\GetDiagnosticsByStatus;
+use App\Core\Diagnostics\UseCases\GetDiagnosticsOrderedByDate; // Importar el nuevo caso de uso
 use Exception;
 
 class DiagnosticController extends Controller
@@ -13,15 +15,21 @@ class DiagnosticController extends Controller
     private $createDiagnostic;
     private $getDiagnosticByReportID;
     private $updateDiagnosticStatus;
+    private $getDiagnosticsByStatus;
+    private $getDiagnosticsOrderedByDate; // Agregar la propiedad
 
     public function __construct(
         CreateDiagnostic $createDiagnostic,
         GetDiagnosticByReportID $getDiagnosticByReportID,
-        UpdateDiagnosticStatus $updateDiagnosticStatus
+        UpdateDiagnosticStatus $updateDiagnosticStatus,
+        GetDiagnosticsByStatus $getDiagnosticsByStatus,
+        GetDiagnosticsOrderedByDate $getDiagnosticsOrderedByDate // Inyectar el nuevo caso de uso
     ) {
         $this->createDiagnostic = $createDiagnostic;
         $this->getDiagnosticByReportID = $getDiagnosticByReportID;
         $this->updateDiagnosticStatus = $updateDiagnosticStatus;
+        $this->getDiagnosticsByStatus = $getDiagnosticsByStatus;
+        $this->getDiagnosticsOrderedByDate = $getDiagnosticsOrderedByDate; // Asignar la propiedad
     }
 
     public function create(Request $request)
@@ -32,11 +40,8 @@ class DiagnosticController extends Controller
                 'description' => 'required|string',
                 'images' => 'nullable|string', // Permitir valores nulos
                 'status' => 'required|in:Enviado,Para Reparar,En Proceso,Terminado',
-                'materials' => 'nullable|array',
-                'materials.*.name' => 'required_with:materials|string',
-                'materials.*.supplier' => 'required_with:materials|string',
-                'materials.*.quantity' => 'required_with:materials|integer',
-                'materials.*.price' => 'required_with:materials|numeric',
+                'materialIDs' => 'nullable|array', // Validar materialIDs como array
+                'materialIDs.*' => 'integer|exists:materials,materialID', // Validar cada materialID
             ]);
 
             $data = $request->all();
@@ -79,6 +84,26 @@ class DiagnosticController extends Controller
             $diagnostic = $this->updateDiagnosticStatus->execute($reportID, $status);
 
             return response()->json(['diagnostic' => $diagnostic], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getByStatus($status)
+    {
+        try {
+            $diagnostics = $this->getDiagnosticsByStatus->execute($status);
+            return response()->json(['diagnostics' => $diagnostics], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getOrderedByDate($order)
+    {
+        try {
+            $diagnostics = $this->getDiagnosticsOrderedByDate->execute($order);
+            return response()->json(['diagnostics' => $diagnostics], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

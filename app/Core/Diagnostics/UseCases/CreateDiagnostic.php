@@ -25,10 +25,12 @@ class CreateDiagnostic
         try {
             $diagnostic = $this->diagnosticRepository->create($data);
 
-            if (!empty($data['materials'])) {
-                foreach ($data['materials'] as $materialData) {
-                    $materialData['diagnosticID'] = $diagnostic->diagnosticID;
-                    $this->materialRepository->create($materialData);
+            if (!empty($data['materialIDs'])) {
+                foreach ($data['materialIDs'] as $materialID) {
+                    $material = $this->materialRepository->find($materialID);
+                    if ($material) {
+                        // Realizar alguna acción con el material si es necesario
+                    }
                 }
             }
 

@@ -22,9 +22,4 @@ class Diagnostic extends Model
     {
         return $this->belongsTo(Report::class, 'reportID', 'reportID');
     }
-
-    public function materials()
-    {
-        return $this->hasMany(Material::class, 'diagnosticID', 'diagnosticID');
-    }
 }

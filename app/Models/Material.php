@@ -13,14 +13,10 @@ class Material extends Model
 
     protected $fillable = [
         'name',
-        'supplier', //Proveedor
-        'quantity', //Cantidad
-        'price', //Precio
-        'diagnosticID',
+        'supplier',
+        'quantity',
+        'price',
     ];
 
-    public function diagnostic()
-    {
-        return $this->belongsTo(Diagnostic::class, 'diagnosticID', 'diagnosticID');
-    }
+    // Eliminar la relación con Report
 }

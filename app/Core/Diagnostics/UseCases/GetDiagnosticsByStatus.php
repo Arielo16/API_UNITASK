@@ -5,7 +5,7 @@ namespace App\Core\Diagnostics\UseCases;
 use App\Core\Diagnostics\Repositories\DiagnosticRepositoryInterface;
 use Exception;
 
-class GetDiagnosticByReportID
+class GetDiagnosticsByStatus
 {
     private $diagnosticRepository;
 
@@ -14,12 +14,12 @@ class GetDiagnosticByReportID
         $this->diagnosticRepository = $diagnosticRepository;
     }
 
-    public function execute($reportID)
+    public function execute(string $status): array
     {
         try {
-            return $this->diagnosticRepository->getByReportID($reportID);
+            return $this->diagnosticRepository->getByStatus($status);
         } catch (Exception $e) {
-            throw new Exception('Error fetching diagnostic by report ID: ' . $e->getMessage());
+            throw new Exception('Error fetching diagnostics by status: ' . $e->getMessage());
         }
     }
 }
