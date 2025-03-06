@@ -12,6 +12,8 @@ use App\Core\Diagnostics\UseCases\GetDiagnosticsByStatus;
 use App\Core\Diagnostics\UseCases\GetDiagnosticsOrderedByDate;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 
 class DiagnosticController extends Controller
 {
@@ -50,25 +52,24 @@ class DiagnosticController extends Controller
             $data = $request->all();
 
             if ($request->hasFile('images')) {
-                $image = $request->file('images');
-                $path = $image->store('diagnostics', 'public'); // Guardar la imagen en storage/diagnostics
-                $data['images'] = $path; // Guardar el path de la imagen
+                Configuration::instance(getenv('CLOUDINARY_URL'));
+
+                $uploadedFile = (new UploadApi())->upload($request->file('images')->getRealPath());
+                $data['images'] = $uploadedFile['secure_url']; 
             } else {
-                $data['images'] = null; // Asignar null si no se proporciona una imagen
+                $data['images'] = null; 
             }
 
-            // Validar que no exista otro diagnóstico con el mismo reportID
             $existingDiagnostic = $this->getDiagnosticByReportID->execute($data['reportID']);
             if ($existingDiagnostic) {
                 if ($path) {
-                    Storage::disk('public')->delete($path); // Eliminar la imagen subida
+                    Storage::disk('public')->delete($path);
                 }
                 return response()->json(['error' => 'A diagnostic already exists for this report ID'], 400);
             }
 
             $diagnostic = $this->createDiagnostic->execute($data);
 
-            // Actualizar el estado del reporte a "Diagnosticado"
             $report = Report::findOrFail($data['reportID']);
             $report->status = 'Diagnosticado';
             $report->save();
@@ -76,7 +77,7 @@ class DiagnosticController extends Controller
             return response()->json(['diagnostic' => $diagnostic], 201);
         } catch (Exception $e) {
             if ($path) {
-                Storage::disk('public')->delete($path); // Eliminar la imagen subida
+                Storage::disk('public')->delete($path); 
             }
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -100,10 +101,21 @@ class DiagnosticController extends Controller
         try {
             $request->validate([
                 'status' => 'required|in:Enviado,Para Reparar,En Proceso,Terminado',
+                'images' => 'nullable|file|mimes:png,jpeg,jpg',
             ]);
 
-            $status = $request->input('status');
-            $diagnostic = $this->updateDiagnosticStatus->execute($reportID, $status);
+            $data = $request->all();
+
+            if ($request->hasFile('images')) {
+                // Configurar Cloudinary con los datos del .env
+                Configuration::instance(getenv('CLOUDINARY_URL'));
+
+                // Subir la imagen a Cloudinary
+                $uploadedFile = (new UploadApi())->upload($request->file('images')->getRealPath());
+                $data['images'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
+            }
+
+            $diagnostic = $this->updateDiagnosticStatus->execute($reportID, $data);
 
             return response()->json(['diagnostic' => $diagnostic], 200);
         } catch (Exception $e) {
