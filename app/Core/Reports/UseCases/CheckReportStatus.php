@@ -16,7 +16,9 @@ class CheckReportStatus
     public function execute($reportID): bool
     {
         $report = $this->reportRepository->getById($reportID);
-        if ($report->status !== 'Diagnosticado') {
+        if (in_array($report->status, ['Diagnosticado', 'En Proceso', 'Terminado'])) {
+            return false;
+        } elseif ($report->status === 'Enviado') {
             $this->reportRepository->updateStatus($reportID, 'Diagnosticado');
             return true;
         }
