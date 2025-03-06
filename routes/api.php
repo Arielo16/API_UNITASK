@@ -51,6 +51,8 @@ Route::prefix('reports')->group(function () {
 //Estos pueden ser solo para admins o servicios generales
     //Actualizar estatus de reporte [Enviado, Diagnosticado, En Proceso, Terminado]
     Route::put('/update-status/{reportID}', [ReportController::class, 'updateStatus']);
+
+    Route::get('/check-status/{reportID}', [ReportController::class, 'checkStatus']);
 });
 
 

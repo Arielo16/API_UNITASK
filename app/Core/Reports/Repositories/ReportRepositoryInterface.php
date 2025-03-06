@@ -14,4 +14,5 @@ interface ReportRepositoryInterface
     public function getByFolio($folio): ?ReportEntity;
     public function update($reportID, array $data): ReportEntity;
     public function updateStatus($reportID, string $status): ReportEntity;
+    public function getById($reportID): ?ReportEntity;
 }

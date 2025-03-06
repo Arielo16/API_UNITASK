@@ -267,4 +267,33 @@ class ReportRepository implements ReportRepositoryInterface
             throw new Exception('Error updating report status: ' . $e->getMessage());
         }
     }
+
+    public function getById($reportID): ?ReportEntity
+    {
+        try {
+            $report = Report::with(['room', 'good', 'building', 'category', 'user'])->find($reportID);
+            if ($report) {
+                return new ReportEntity(
+                    $report->reportID,
+                    $report->folio,
+                    $report->building->name, 
+                    $report->room->name, 
+                    $report->category->name, 
+                    $report->good->name, 
+                    $report->priority,
+                    $report->description,
+                    $report->image,
+                    $report->user->username, 
+                    $report->status,
+                    $report->requires_approval,
+                    $report->involve_third_parties,
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
+                );
+            }
+            return null;
+        } catch (Exception $e) {
+            throw new Exception('Error fetching report by ID: ' . $e->getMessage());
+        }
+    }
 }

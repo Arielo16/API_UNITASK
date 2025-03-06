@@ -12,6 +12,7 @@ use App\Core\Reports\UseCases\GetReportsOrderedByDate;
 use App\Core\Reports\UseCases\GetReportByFolio;
 use App\Core\Reports\UseCases\UpdateReport;
 use App\Core\Reports\UseCases\UpdateReportStatus;
+use App\Core\Reports\UseCases\CheckReportStatus;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,6 +27,7 @@ class ReportController extends Controller
     private $getReportByFolio;
     private $updateReport;
     private $updateReportStatus;
+    private $checkReportStatus;
 
     public function __construct(
         GetAllReports $getAllReports, 
@@ -36,7 +38,8 @@ class ReportController extends Controller
         GetReportsOrderedByDate $getReportsOrderedByDate,
         GetReportByFolio $getReportByFolio,
         UpdateReport $updateReport,
-        UpdateReportStatus $updateReportStatus
+        UpdateReportStatus $updateReportStatus,
+        CheckReportStatus $checkReportStatus
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
@@ -47,6 +50,7 @@ class ReportController extends Controller
         $this->getReportByFolio = $getReportByFolio;
         $this->updateReport = $updateReport;
         $this->updateReportStatus = $updateReportStatus;
+        $this->checkReportStatus = $checkReportStatus;
     }
 
     public function index()
@@ -238,6 +242,16 @@ class ReportController extends Controller
             $report = $this->updateReportStatus->execute($reportID, $status);
 
             return response()->json(['report' => $report], 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function checkStatus($reportID)
+    {
+        try {
+            $status = $this->checkReportStatus->execute($reportID);
+            return response()->json(['status' => $status], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
