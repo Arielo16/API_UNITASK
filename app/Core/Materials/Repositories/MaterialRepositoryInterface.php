@@ -8,4 +8,5 @@ interface MaterialRepositoryInterface
 {
     public function create(array $data): MaterialEntity;
     public function find($materialID);
+    public function getAll(): array;
 }

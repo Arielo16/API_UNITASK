@@ -38,6 +38,7 @@ use App\Core\Diagnostics\UseCases\GetDiagnosticByReportID;
 use App\Core\Diagnostics\UseCases\UpdateDiagnosticStatus;
 use App\Core\Materials\Repositories\MaterialRepositoryInterface;
 use App\Infrastructure\Persistence\MaterialRepository;
+use App\Core\Materials\UseCases\GetAllMaterials;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -132,6 +133,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(UpdateDiagnosticStatus::class, function ($app) {
             return new UpdateDiagnosticStatus($app->make(DiagnosticRepositoryInterface::class));
+        });
+
+        $this->app->singleton(GetAllMaterials::class, function ($app) {
+            return new GetAllMaterials($app->make(MaterialRepositoryInterface::class));
         });
     }
 

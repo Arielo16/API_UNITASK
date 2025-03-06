@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GoodController;
 use App\Http\Controllers\DiagnosticController; // Asegúrate de importar el controlador
 use App\Http\Controllers\ImageController; // Importar el controlador de imágenes
+use App\Http\Controllers\MaterialController; // Importar el controlador de materiales
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->group(function () {
@@ -85,3 +86,7 @@ Route::prefix('diagnostics')->group(function () {
 
 // Ruta para manejar la subida de imágenes
 Route::post('/images/upload', [ImageController::class, 'store']);
+
+Route::prefix('materials')->group(function () {
+    Route::get('/', [MaterialController::class, 'index']);
+});
