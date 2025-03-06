@@ -13,6 +13,7 @@ use App\Core\Reports\UseCases\GetReportByFolio;
 use App\Core\Reports\UseCases\UpdateReport;
 use App\Core\Reports\UseCases\UpdateReportStatus;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -52,6 +53,12 @@ class ReportController extends Controller
     {
         try {
             $reports = $this->getAllReports->execute();
+            $reports = array_map(function ($report) {
+                $reportArray = (array) $report;
+                $reportArray['userID'] = $reportArray['id'];
+                unset($reportArray['id']);
+                return $reportArray;
+            }, $reports);
             return response()->json(['reports' => $reports], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -62,6 +69,12 @@ class ReportController extends Controller
     {
         try {
             $reports = $this->getReportsByPriority->execute($priority);
+            $reports = array_map(function ($report) {
+                $reportArray = (array) $report;
+                $reportArray['userID'] = $reportArray['id'];
+                unset($reportArray['id']);
+                return $reportArray;
+            }, $reports);
             return response()->json(['reports' => $reports], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -72,6 +85,12 @@ class ReportController extends Controller
     {
         try {
             $reports = $this->getReportsByStatus->execute($status);
+            $reports = array_map(function ($report) {
+                $reportArray = (array) $report;
+                $reportArray['userID'] = $reportArray['id'];
+                unset($reportArray['id']);
+                return $reportArray;
+            }, $reports);
             return response()->json(['reports' => $reports], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -82,6 +101,12 @@ class ReportController extends Controller
     {
         try {
             $reports = $this->getReportsByBuildingId->execute($buildingID);
+            $reports = array_map(function ($report) {
+                $reportArray = (array) $report;
+                $reportArray['userID'] = $reportArray['id'];
+                unset($reportArray['id']);
+                return $reportArray;
+            }, $reports);
             return response()->json(['reports' => $reports], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -98,9 +123,9 @@ class ReportController extends Controller
                 'goodID' => 'required|exists:goods,goodID',
                 'priority' => 'required|in:Immediate,Normal',
                 'description' => 'required|string',
-                'image' => 'nullable|file|mimes:png,jpeg,jpg', // Validar como archivo .png, .jpeg, .jpg
-                'id' => 'required|exists:users,id',
-                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
+                'image' => 'nullable|file|mimes:png,jpeg,jpg',
+                'userID' => 'required|exists:users,id',
+                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', 
                 'requires_approval' => 'required|boolean',
                 'involve_third_parties' => 'required|boolean',
             ]);
@@ -109,10 +134,10 @@ class ReportController extends Controller
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $imageContent = base64_encode(file_get_contents($image->getRealPath()));
-                $data['image'] = $imageContent; // Guardar la imagen en base64
+                $path = $image->store('reports', 'public'); 
+                $data['image'] = $path; 
             } else {
-                $data['image'] = null; // Asignar null si no se proporciona una imagen
+                $data['image'] = null;
             }
 
             $report = $this->createReport->execute($data);
@@ -127,6 +152,12 @@ class ReportController extends Controller
     {
         try {
             $reports = $this->getReportsOrderedByDate->execute($order);
+            $reports = array_map(function ($report) {
+                $reportArray = (array) $report;
+                $reportArray['userID'] = $reportArray['id'];
+                unset($reportArray['id']);
+                return $reportArray;
+            }, $reports);
             return response()->json(['reports' => $reports], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -137,7 +168,12 @@ class ReportController extends Controller
     {
         try {
             $report = $this->getReportByFolio->execute($folio);
-            return response()->json(['report' => $report], 200);
+            if ($report) {
+                $reportArray = (array) $report;
+                $reportArray['userID'] = $reportArray['id'];
+                unset($reportArray['id']);
+            }
+            return response()->json(['report' => $reportArray], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -154,7 +190,7 @@ class ReportController extends Controller
                 'priority' => 'required|in:Immediate,Normal',
                 'description' => 'required|string',
                 'image' => 'nullable|file|mimes:png,jpeg,jpg', // Validar como archivo .png, .jpeg, .jpg
-                'id' => 'required|exists:users,id',
+                'userID' => 'required|exists:users,id',
                 'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
                 'requires_approval' => 'required|boolean',
                 'involve_third_parties' => 'required|boolean',
@@ -166,10 +202,10 @@ class ReportController extends Controller
             $existingReport = $this->getReportByFolio->execute($reportID);
 
             if ($request->hasFile('image')) {
-                // Guardar la nueva imagen en base64
+                // Guardar la nueva imagen en storage/reports
                 $image = $request->file('image');
-                $imageContent = base64_encode(file_get_contents($image->getRealPath()));
-                $data['image'] = $imageContent; // Guardar la imagen en base64
+                $path = $image->store('reports', 'public');
+                $data['image'] = $path; // Guardar el path de la imagen
             }
 
             $report = $this->updateReport->execute($reportID, $data);

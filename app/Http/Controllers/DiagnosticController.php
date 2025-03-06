@@ -48,8 +48,8 @@ class DiagnosticController extends Controller
 
             if ($request->hasFile('images')) {
                 $image = $request->file('images');
-                $imageContent = base64_encode(file_get_contents($image->getRealPath()));
-                $validatedData['images'] = $imageContent; // Guardar la imagen en base64
+                $path = $image->store('diagnostics', 'public'); // Guardar la imagen en storage/diagnostics
+                $validatedData['images'] = $path; // Guardar el path de la imagen
             } else {
                 $validatedData['images'] = null; // Asignar null si no se proporciona una imagen
             }
@@ -80,7 +80,7 @@ class DiagnosticController extends Controller
         try {
             $diagnostic = $this->getDiagnosticByReportID->execute($reportID);
             if ($diagnostic && $diagnostic->images) {
-                $diagnostic->images = base64_encode(Storage::disk('public')->get($diagnostic->images));
+                $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
             }
             return response()->json(['diagnostic' => $diagnostic], 200);
         } catch (Exception $e) {
@@ -110,7 +110,7 @@ class DiagnosticController extends Controller
             $diagnostics = $this->getDiagnosticsByStatus->execute($status);
             foreach ($diagnostics as $diagnostic) {
                 if ($diagnostic->images) {
-                    $diagnostic->images = base64_encode(Storage::disk('public')->get($diagnostic->images));
+                    $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
                 }
             }
             return response()->json(['diagnostics' => $diagnostics], 200);
@@ -125,7 +125,7 @@ class DiagnosticController extends Controller
             $diagnostics = $this->getDiagnosticsOrderedByDate->execute($order);
             foreach ($diagnostics as $diagnostic) {
                 if ($diagnostic->images) {
-                    $diagnostic->images = base64_encode(Storage::disk('public')->get($diagnostic->images));
+                    $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
                 }
             }
             return response()->json(['diagnostics' => $diagnostics], 200);

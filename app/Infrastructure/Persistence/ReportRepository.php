@@ -29,7 +29,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -56,7 +57,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -83,7 +85,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -105,7 +108,7 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->id, 
+                $report->userID, // Cambiar a userID
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties,
@@ -142,7 +145,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -171,7 +175,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
                 );
             })->toArray();
         } catch (Exception $e) {
@@ -200,7 +205,8 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
-                    Carbon::parse($report->created_at)->format('Y-m-d H:i')
+                    Carbon::parse($report->created_at)->format('Y-m-d H:i'),
+                    $report->user->id // Cambiar a userID
                 );
             }
             return null;
@@ -224,7 +230,7 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->id, 
+                $report->userID, // Cambiar a userID
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties,
@@ -251,7 +257,7 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->id, 
+                $report->userID, // Cambiar a userID
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties,

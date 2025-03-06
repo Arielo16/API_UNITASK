@@ -7,6 +7,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GoodController;
 use App\Http\Controllers\DiagnosticController; // Asegúrate de importar el controlador
+use App\Http\Controllers\ImageController; // Importar el controlador de imágenes
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->group(function () {
@@ -79,3 +80,6 @@ Route::prefix('diagnostics')->group(function () {
     //Filtros: Buscar por fecha de creación [asc, desc]
     Route::get('/ordered/{order}', [DiagnosticController::class, 'getOrderedByDate']);
 });
+
+// Ruta para manejar la subida de imágenes
+Route::post('/images/upload', [ImageController::class, 'store']);

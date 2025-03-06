@@ -17,19 +17,20 @@ return new class extends Migration
         Schema::create('diagnostics', function (Blueprint $table) {
             $table->id('diagnosticID'); 
             $table->unsignedBigInteger('reportID');
-            $table->json('materialIDs')->nullable(); // Cambiar a JSON para múltiples materialIDs
+            $table->unsignedBigInteger('materialID')->nullable(); // Agregar materialID como columna nullable
             $table->text('description');
             $table->longText('images')->nullable(); // Permitir valores nulos
             $table->enum('status', ['Enviado', 'Para Reparar', 'En Proceso', 'Terminado']);
             $table->timestamps();
 
             $table->foreign('reportID')->references('reportID')->on('reports')->onDelete('cascade');
+            $table->foreign('materialID')->references('materialID')->on('materials')->onDelete('set null'); // Agregar la relación con materials
         });
 
         DB::table('diagnostics')->insert([
             [
                 'reportID' => 1,
-                'materialIDs' => json_encode([1, 2]),
+                'materialID' => 1,
                 'description' => 'Diagnóstico de silla rota en la habitación 101',
                 'images' => '',
                 'status' => 'Enviado',
@@ -38,7 +39,7 @@ return new class extends Migration
             ],
             [
                 'reportID' => 2,
-                'materialIDs' => json_encode([2, 3]),
+                'materialID' => 2,
                 'description' => 'Diagnóstico de reparación de ventana en la habitación 202',
                 'images' => '',
                 'status' => 'Para Reparar',
@@ -47,7 +48,7 @@ return new class extends Migration
             ],
             [
                 'reportID' => 3,
-                'materialIDs' => json_encode([3, 4]),
+                'materialID' => 3,
                 'description' => 'Diagnóstico de problema eléctrico en la habitación 303',
                 'images' => '',
                 'status' => 'En Proceso',
@@ -56,7 +57,7 @@ return new class extends Migration
             ],
             [
                 'reportID' => 4,
-                'materialIDs' => json_encode([4, 5]),
+                'materialID' => 4,
                 'description' => 'Diagnóstico de ventana rota en la habitación 404',
                 'images' => '',
                 'status' => 'Terminado',
@@ -65,7 +66,7 @@ return new class extends Migration
             ],
             [
                 'reportID' => 5,
-                'materialIDs' => json_encode([5, 6]),
+                'materialID' => 5,
                 'description' => 'Diagnóstico de problema de plomería en la habitación 505',
                 'images' => '',
                 'status' => 'Enviado',
