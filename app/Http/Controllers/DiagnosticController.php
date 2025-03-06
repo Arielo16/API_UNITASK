@@ -37,8 +37,9 @@ class DiagnosticController extends Controller
 
     public function create(Request $request)
     {
+        $path = null;
         try {
-            $validatedData = $request->validate([
+            $request->validate([
                 'reportID' => 'required|exists:reports,reportID',
                 'description' => 'required|string',
                 'images' => 'nullable|file|mimes:png,jpeg,jpg', // Validar como archivo .png, .jpeg, .jpg
@@ -46,31 +47,37 @@ class DiagnosticController extends Controller
                 'materialID' => 'nullable|integer|exists:materials,materialID', // Validar materialID
             ]);
 
+            $data = $request->all();
+
             if ($request->hasFile('images')) {
                 $image = $request->file('images');
                 $path = $image->store('diagnostics', 'public'); // Guardar la imagen en storage/diagnostics
-                $validatedData['images'] = $path; // Guardar el path de la imagen
+                $data['images'] = $path; // Guardar el path de la imagen
             } else {
-                $validatedData['images'] = null; // Asignar null si no se proporciona una imagen
+                $data['images'] = null; // Asignar null si no se proporciona una imagen
             }
 
-            $diagnosticID = DB::table('diagnostics')->insertGetId([
-                'reportID' => $validatedData['reportID'],
-                'description' => $validatedData['description'],
-                'images' => $validatedData['images'],
-                'status' => $validatedData['status'],
-                'materialID' => $validatedData['materialID'] ?? null, // Asignar materialID si se proporciona
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            // Validar que no exista otro diagnóstico con el mismo reportID
+            $existingDiagnostic = $this->getDiagnosticByReportID->execute($data['reportID']);
+            if ($existingDiagnostic) {
+                if ($path) {
+                    Storage::disk('public')->delete($path); // Eliminar la imagen subida
+                }
+                return response()->json(['error' => 'A diagnostic already exists for this report ID'], 400);
+            }
+
+            $diagnostic = $this->createDiagnostic->execute($data);
 
             // Actualizar el estado del reporte a "Diagnosticado"
-            $report = Report::findOrFail($validatedData['reportID']);
+            $report = Report::findOrFail($data['reportID']);
             $report->status = 'Diagnosticado';
             $report->save();
 
-            return response()->json(['diagnosticID' => $diagnosticID], 201);
+            return response()->json(['diagnostic' => $diagnostic], 201);
         } catch (Exception $e) {
+            if ($path) {
+                Storage::disk('public')->delete($path); // Eliminar la imagen subida
+            }
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }

@@ -115,6 +115,7 @@ class ReportController extends Controller
 
     public function create(Request $request)
     {
+        $path = null;
         try {
             $request->validate([
                 'buildingID' => 'required|exists:buildings,buildingID',
@@ -140,11 +141,21 @@ class ReportController extends Controller
                 $data['image'] = null;
             }
 
+            // Generar el folio
+            $nextId = $this->createReport->getNextId();
+            $data['folio'] = 'REP' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+
+            // Incluir el campo 'id' en los datos
+            $data['id'] = $request->input('userID');
+
             $report = $this->createReport->execute($data);
 
             return response()->json(['report' => $report], 201);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            if ($path) {
+                Storage::disk('public')->delete($path); // Eliminar la imagen subida
+            }
+            return response()->json(['error' => 'Error creating report: ' . $e->getMessage()], 500);
         }
     }
 
