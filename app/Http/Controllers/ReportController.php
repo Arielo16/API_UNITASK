@@ -15,6 +15,8 @@ use App\Core\Reports\UseCases\UpdateReportStatus;
 use App\Core\Reports\UseCases\CheckReportStatus;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 
 class ReportController extends Controller
 {
@@ -138,9 +140,12 @@ class ReportController extends Controller
             $data = $request->all();
 
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $path = $image->store('reports', 'public'); 
-                $data['image'] = $path; 
+                // Configurar Cloudinary con los datos del .env
+                Configuration::instance(getenv('CLOUDINARY_URL'));
+
+                // Subir la imagen a Cloudinary
+                $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
+                $data['image'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
             } else {
                 $data['image'] = null;
             }
@@ -217,10 +222,12 @@ class ReportController extends Controller
             $existingReport = $this->getReportByFolio->execute($reportID);
 
             if ($request->hasFile('image')) {
-                // Guardar la nueva imagen en storage/reports
-                $image = $request->file('image');
-                $path = $image->store('reports', 'public');
-                $data['image'] = $path; // Guardar el path de la imagen
+                // Configurar Cloudinary con los datos del .env
+                Configuration::instance(getenv('CLOUDINARY_URL'));
+
+                // Subir la imagen a Cloudinary
+                $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
+                $data['image'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
             }
 
             $report = $this->updateReport->execute($reportID, $data);
