@@ -13,13 +13,11 @@ class Material extends Model
 
     protected $fillable = [
         'name',
-        'supplier',
-        'quantity',
-        'price',
     ];
 
     public function diagnostics()
     {
-        return $this->belongsToMany(Diagnostic::class, 'diagnostic_material', 'materialID', 'diagnosticID');
+        return $this->belongsToMany(Diagnostic::class, 'diagnostic_material', 'materialID', 'diagnosticID')
+                    ->withPivot('quantity');
     }
 }

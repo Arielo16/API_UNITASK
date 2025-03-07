@@ -25,6 +25,7 @@ class Diagnostic extends Model
 
     public function materials()
     {
-        return $this->belongsToMany(Material::class, 'diagnostic_material', 'diagnosticID', 'materialID');
+        return $this->belongsToMany(Material::class, 'diagnostic_material', 'diagnosticID', 'materialID')
+                    ->withPivot('quantity');
     }
 }

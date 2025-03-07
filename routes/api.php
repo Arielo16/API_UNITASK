@@ -89,4 +89,5 @@ Route::post('/images/upload', [ImageController::class, 'store']);
 
 Route::prefix('materials')->group(function () {
     Route::get('/', [MaterialController::class, 'index']);
+    Route::post('/create', [MaterialController::class, 'create']); // Agregar la ruta para crear un nuevo material
 });

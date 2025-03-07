@@ -12,50 +12,32 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id('materialID'); // Asegúrate de que esta columna esté correctamente definida
             $table->string('name'); 
-            $table->string('supplier'); // Este es el proveedor
-            $table->integer('quantity'); 
-            $table->decimal('price', 10, 2); 
             $table->timestamps();
         });
 
         DB::table('materials')->insert([
             [
                 'name' => 'Wooden Planks',
-                'supplier' => 'Wood Suppliers Inc.',
-                'quantity' => 50,
-                'price' => 15.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
                 'name' => 'Aluminum Sheets',
-                'supplier' => 'Aluminum Co.',
-                'quantity' => 30,
-                'price' => 25.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
                 'name' => 'Electrical Wires',
-                'supplier' => 'Electrical Supplies Ltd.',
-                'quantity' => 100,
-                'price' => 5.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
                 'name' => 'Glass Panels',
-                'supplier' => 'Glassworks',
-                'quantity' => 20,
-                'price' => 50.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
             [
                 'name' => 'PVC Pipes',
-                'supplier' => 'Plumbing Supplies Co.',
-                'quantity' => 40,
-                'price' => 10.00,
                 'created_at' => now(),
                 'updated_at' => now()
             ],

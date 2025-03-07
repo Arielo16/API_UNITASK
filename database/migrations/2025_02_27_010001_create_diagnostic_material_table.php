@@ -12,6 +12,7 @@ class CreateDiagnosticMaterialTable extends Migration
             $table->id();
             $table->unsignedBigInteger('diagnosticID');
             $table->unsignedBigInteger('materialID');
+            $table->integer('quantity'); // Nuevo campo
             $table->timestamps();
 
             $table->foreign('diagnosticID')->references('diagnosticID')->on('diagnostics')->onDelete('cascade');

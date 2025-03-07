@@ -48,7 +48,8 @@ class DiagnosticController extends Controller
                 'images' => 'nullable|file|mimes:png,jpeg,jpg',
                 'status' => 'required|in:Enviado,Para Reparar,En Proceso,Terminado',
                 'materials' => 'array',
-                'materials.*' => 'integer|exists:materials,materialID',
+                'materials.*.materialID' => 'required|integer|exists:materials,materialID',
+                'materials.*.quantity' => 'required|integer|min:1',
             ]);
 
             $data = $request->all();
@@ -72,10 +73,14 @@ class DiagnosticController extends Controller
 
             $diagnostic = $this->createDiagnostic->execute($data);
 
-            // Sincronizar materiales en el modelo Diagnostic
+            // Sincronizar materiales en el modelo Diagnostic con cantidad
             $diagnosticModel = Diagnostic::find($diagnostic->diagnosticID);
             if (isset($data['materials'])) {
-                $diagnosticModel->materials()->sync($data['materials']);
+                $materials = [];
+                foreach ($data['materials'] as $material) {
+                    $materials[$material['materialID']] = ['quantity' => $material['quantity']];
+                }
+                $diagnosticModel->materials()->sync($materials);
             }
 
             $report = Report::findOrFail($data['reportID']);
