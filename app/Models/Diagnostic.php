@@ -16,11 +16,15 @@ class Diagnostic extends Model
         'description',
         'images',
         'status',
-        'materialID',
     ];
 
     public function report()
     {
         return $this->belongsTo(Report::class, 'reportID', 'reportID');
+    }
+
+    public function materials()
+    {
+        return $this->belongsToMany(Material::class, 'diagnostic_material', 'diagnosticID', 'materialID');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Report;
+use App\Models\Diagnostic; // Importar la clase Diagnostic
 use App\Core\Diagnostics\UseCases\CreateDiagnostic;
 use App\Core\Diagnostics\UseCases\GetDiagnosticByReportID;
 use App\Core\Diagnostics\UseCases\UpdateDiagnosticStatus;
@@ -44,9 +45,10 @@ class DiagnosticController extends Controller
             $request->validate([
                 'reportID' => 'required|exists:reports,reportID',
                 'description' => 'required|string',
-                'images' => 'nullable|file|mimes:png,jpeg,jpg', // Validar como archivo .png, .jpeg, .jpg
+                'images' => 'nullable|file|mimes:png,jpeg,jpg',
                 'status' => 'required|in:Enviado,Para Reparar,En Proceso,Terminado',
-                'materialID' => 'nullable|integer|exists:materials,materialID', // Validar materialID
+                'materials' => 'array',
+                'materials.*' => 'integer|exists:materials,materialID',
             ]);
 
             $data = $request->all();
@@ -55,9 +57,9 @@ class DiagnosticController extends Controller
                 Configuration::instance(getenv('CLOUDINARY_URL'));
 
                 $uploadedFile = (new UploadApi())->upload($request->file('images')->getRealPath());
-                $data['images'] = $uploadedFile['secure_url']; 
+                $data['images'] = $uploadedFile['secure_url'];
             } else {
-                $data['images'] = null; 
+                $data['images'] = null;
             }
 
             $existingDiagnostic = $this->getDiagnosticByReportID->execute($data['reportID']);
@@ -70,6 +72,12 @@ class DiagnosticController extends Controller
 
             $diagnostic = $this->createDiagnostic->execute($data);
 
+            // Sincronizar materiales en el modelo Diagnostic
+            $diagnosticModel = Diagnostic::find($diagnostic->diagnosticID);
+            if (isset($data['materials'])) {
+                $diagnosticModel->materials()->sync($data['materials']);
+            }
+
             $report = Report::findOrFail($data['reportID']);
             $report->status = 'Diagnosticado';
             $report->save();
@@ -77,9 +85,9 @@ class DiagnosticController extends Controller
             return response()->json(['diagnostic' => $diagnostic], 201);
         } catch (Exception $e) {
             if ($path) {
-                Storage::disk('public')->delete($path); 
+                Storage::disk('public')->delete($path);
             }
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Error creating diagnostic: ' . $e->getMessage()], 500);
         }
     }
 
@@ -102,20 +110,24 @@ class DiagnosticController extends Controller
             $request->validate([
                 'status' => 'required|in:Enviado,Para Reparar,En Proceso,Terminado',
                 'images' => 'nullable|file|mimes:png,jpeg,jpg',
+                'materials' => 'array',
+                'materials.*' => 'integer|exists:materials,materialID',
             ]);
 
             $data = $request->all();
 
             if ($request->hasFile('images')) {
-                // Configurar Cloudinary con los datos del .env
                 Configuration::instance(getenv('CLOUDINARY_URL'));
 
-                // Subir la imagen a Cloudinary
                 $uploadedFile = (new UploadApi())->upload($request->file('images')->getRealPath());
-                $data['images'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
+                $data['images'] = $uploadedFile['secure_url'];
             }
 
             $diagnostic = $this->updateDiagnosticStatus->execute($reportID, $data);
+
+            if (isset($data['materials'])) {
+                $diagnostic->materials()->sync($data['materials']);
+            }
 
             return response()->json(['diagnostic' => $diagnostic], 200);
         } catch (Exception $e) {

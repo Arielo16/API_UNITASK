@@ -16,13 +16,10 @@ class Material extends Model
         'supplier',
         'quantity',
         'price',
-        'diagnosticID',
-        'created_at',
-        'updated_at',
     ];
 
     public function diagnostics()
     {
-        return $this->hasMany(Diagnostic::class, 'materialID');
+        return $this->belongsToMany(Diagnostic::class, 'diagnostic_material', 'materialID', 'diagnosticID');
     }
 }
