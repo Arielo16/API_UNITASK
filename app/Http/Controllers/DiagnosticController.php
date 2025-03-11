@@ -18,6 +18,8 @@ use Cloudinary\Api\Upload\UploadApi;
 
 class DiagnosticController extends Controller
 {
+    private const PER_PAGE = 15; // Definir una constante para el número de elementos por página
+
     private $createDiagnostic;
     private $getDiagnosticByReportID;
     private $updateDiagnosticStatus;
@@ -101,7 +103,12 @@ class DiagnosticController extends Controller
         try {
             $diagnostic = $this->getDiagnosticByReportID->execute($reportID);
             if ($diagnostic && $diagnostic->images) {
-                $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
+                // Verificar si la URL de la imagen ya es una URL completa
+                if (filter_var($diagnostic->images, FILTER_VALIDATE_URL)) {
+                    $diagnostic->images = $diagnostic->images;
+                } else {
+                    $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
+                }
             }
             return response()->json(['diagnostic' => $diagnostic], 200);
         } catch (Exception $e) {
@@ -140,31 +147,35 @@ class DiagnosticController extends Controller
         }
     }
 
-    public function getByStatus($status)
+    public function getByStatus(Request $request, $status)
     {
         try {
-            $diagnostics = $this->getDiagnosticsByStatus->execute($status);
-            foreach ($diagnostics as $diagnostic) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $diagnostics = $this->getDiagnosticsByStatus->execute($status, $perPage);
+            $diagnosticsArray = $diagnostics->items(); // Obtener los elementos paginados
+            foreach ($diagnosticsArray as $diagnostic) {
                 if ($diagnostic->images) {
                     $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
                 }
             }
-            return response()->json(['diagnostics' => $diagnostics], 200);
+            return response()->json(['pagination' => $diagnostics->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function getOrderedByDate($order)
+    public function getOrderedByDate(Request $request, $order)
     {
         try {
-            $diagnostics = $this->getDiagnosticsOrderedByDate->execute($order);
-            foreach ($diagnostics as $diagnostic) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $diagnostics = $this->getDiagnosticsOrderedByDate->execute($order, $perPage);
+            $diagnosticsArray = $diagnostics->items(); // Obtener los elementos paginados
+            foreach ($diagnosticsArray as $diagnostic) {
                 if ($diagnostic->images) {
                     $diagnostic->images = Storage::disk('public')->url($diagnostic->images);
                 }
             }
-            return response()->json(['diagnostics' => $diagnostics], 200);
+            return response()->json(['pagination' => $diagnostics->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

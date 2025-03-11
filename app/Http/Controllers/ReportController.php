@@ -20,6 +20,8 @@ use Cloudinary\Api\Upload\UploadApi;
 
 class ReportController extends Controller
 {
+    private const PER_PAGE = 15; // Definir una constante para el número de elementos por página
+
     private $getAllReports;
     private $getReportsByPriority;
     private $getReportsByStatus;
@@ -55,65 +57,73 @@ class ReportController extends Controller
         $this->checkReportStatus = $checkReportStatus;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $reports = $this->getAllReports->execute();
-            $reports = array_map(function ($report) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $reports = $this->getAllReports->execute($perPage);
+            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
                 unset($reportArray['id']);
                 return $reportArray;
-            }, $reports);
-            return response()->json(['reports' => $reports], 200);
+            }, $reportsArray);
+            return response()->json(['pagination' => $reports->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function getByPriority($priority)
+    public function getByPriority(Request $request, $priority)
     {
         try {
-            $reports = $this->getReportsByPriority->execute($priority);
-            $reports = array_map(function ($report) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $reports = $this->getReportsByPriority->execute($priority, $perPage);
+            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
                 unset($reportArray['id']);
                 return $reportArray;
-            }, $reports);
-            return response()->json(['reports' => $reports], 200);
+            }, $reportsArray);
+            return response()->json(['pagination' => $reports->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function getByStatus($status)
+    public function getByStatus(Request $request, $status)
     {
         try {
-            $reports = $this->getReportsByStatus->execute($status);
-            $reports = array_map(function ($report) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $reports = $this->getReportsByStatus->execute($status, $perPage);
+            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
                 unset($reportArray['id']);
                 return $reportArray;
-            }, $reports);
-            return response()->json(['reports' => $reports], 200);
+            }, $reportsArray);
+            return response()->json(['pagination' => $reports->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function getByBuildingId($buildingID)
+    public function getByBuildingId(Request $request, $buildingID)
     {
         try {
-            $reports = $this->getReportsByBuildingId->execute($buildingID);
-            $reports = array_map(function ($report) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $reports = $this->getReportsByBuildingId->execute($buildingID, $perPage);
+            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
                 unset($reportArray['id']);
                 return $reportArray;
-            }, $reports);
-            return response()->json(['reports' => $reports], 200);
+            }, $reportsArray);
+            return response()->json(['pagination' => $reports->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -140,12 +150,10 @@ class ReportController extends Controller
             $data = $request->all();
 
             if ($request->hasFile('image')) {
-                // Configurar Cloudinary con los datos del .env
                 Configuration::instance(getenv('CLOUDINARY_URL'));
 
-                // Subir la imagen a Cloudinary
                 $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
-                $data['image'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
+                $data['image'] = $uploadedFile['sedcure_url']; 
             } else {
                 $data['image'] = null;
             }
@@ -168,17 +176,19 @@ class ReportController extends Controller
         }
     }
 
-    public function getOrderedByDate($order)
+    public function getOrderedByDate(Request $request, $order)
     {
         try {
-            $reports = $this->getReportsOrderedByDate->execute($order);
-            $reports = array_map(function ($report) {
+            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $reports = $this->getReportsOrderedByDate->execute($order, $perPage);
+            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
                 unset($reportArray['id']);
                 return $reportArray;
-            }, $reports);
-            return response()->json(['reports' => $reports], 200);
+            }, $reportsArray);
+            return response()->json(['pagination' => $reports->toArray()], 200);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

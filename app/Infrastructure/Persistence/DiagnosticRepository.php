@@ -8,6 +8,7 @@ use App\Core\Diagnostics\Entities\DiagnosticEntity;
 use App\Core\Diagnostics\Repositories\DiagnosticRepositoryInterface;
 use Exception;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DiagnosticRepository implements DiagnosticRepositoryInterface
 {
@@ -114,11 +115,11 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
         }
     }
 
-    public function getByStatus(string $status): array
+    public function getByStatus(string $status, $perPage = 15): LengthAwarePaginator
     {
         try {
-            $diagnostics = Diagnostic::where('status', $status)->get();
-            return $diagnostics->map(function ($diagnostic) {
+            $diagnostics = Diagnostic::where('status', $status)->paginate($perPage);
+            $diagnostics->getCollection()->transform(function ($diagnostic) {
                 $materials = $diagnostic->materials->map(function ($material) {
                     return [
                         'materialID' => $material->materialID,
@@ -136,17 +137,18 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                     Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
                     $materials // Incluir materiales con cantidades
                 );
-            })->toArray();
+            });
+            return $diagnostics;
         } catch (Exception $e) {
             throw new Exception('Error fetching diagnostics by status: ' . $e->getMessage());
         }
     }
 
-    public function getOrderedByDate(string $order): array
+    public function getOrderedByDate(string $order, $perPage = 15): LengthAwarePaginator
     {
         try {
-            $diagnostics = Diagnostic::orderBy('created_at', $order)->get();
-            return $diagnostics->map(function ($diagnostic) {
+            $diagnostics = Diagnostic::orderBy('created_at', $order)->paginate($perPage);
+            $diagnostics->getCollection()->transform(function ($diagnostic) {
                 $materials = $diagnostic->materials->map(function ($material) {
                     return [
                         'materialID' => $material->materialID,
@@ -164,7 +166,8 @@ class DiagnosticRepository implements DiagnosticRepositoryInterface
                     Carbon::parse($diagnostic->updated_at)->format('Y-m-d H:i'),
                     $materials // Incluir materiales con cantidades
                 );
-            })->toArray();
+            });
+            return $diagnostics;
         } catch (Exception $e) {
             throw new Exception('Error fetching diagnostics ordered by date: ' . $e->getMessage());
         }

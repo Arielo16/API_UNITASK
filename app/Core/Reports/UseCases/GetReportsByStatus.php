@@ -4,6 +4,7 @@ namespace App\Core\Reports\UseCases;
 
 use App\Core\Reports\Repositories\ReportRepositoryInterface;
 use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetReportsByStatus
 {
@@ -14,10 +15,10 @@ class GetReportsByStatus
         $this->reportRepository = $reportRepository;
     }
 
-    public function execute(string $status): array
+    public function execute(string $status, $perPage = 15): LengthAwarePaginator
     {
         try {
-            return $this->reportRepository->getByStatus($status);
+            return $this->reportRepository->getByStatus($status, $perPage);
         } catch (Exception $e) {
             throw new Exception('Error fetching reports by status: ' . $e->getMessage());
         }

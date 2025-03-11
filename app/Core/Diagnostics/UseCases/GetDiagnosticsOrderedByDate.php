@@ -4,6 +4,7 @@ namespace App\Core\Diagnostics\UseCases;
 
 use App\Core\Diagnostics\Repositories\DiagnosticRepositoryInterface;
 use Exception;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class GetDiagnosticsOrderedByDate
 {
@@ -14,10 +15,10 @@ class GetDiagnosticsOrderedByDate
         $this->diagnosticRepository = $diagnosticRepository;
     }
 
-    public function execute(string $order): array
+    public function execute(string $order, $perPage = 15): LengthAwarePaginator
     {
         try {
-            return $this->diagnosticRepository->getOrderedByDate($order);
+            return $this->diagnosticRepository->getOrderedByDate($order, $perPage);
         } catch (Exception $e) {
             throw new Exception('Error fetching diagnostics ordered by date: ' . $e->getMessage());
         }

@@ -7,14 +7,15 @@ use App\Core\Reports\Entities\ReportEntity;
 use App\Core\Reports\Repositories\ReportRepositoryInterface;
 use Exception;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ReportRepository implements ReportRepositoryInterface
 {
-    public function getAll(): array
+    public function getAll($perPage = 15): LengthAwarePaginator
     {
         try {
-            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])->get();
-            return $reports->map(function ($report) {
+            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])->paginate($perPage);
+            $reports->getCollection()->transform(function ($report) {
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
@@ -25,24 +26,25 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
-            })->toArray();
+            });
+            return $reports;
         } catch (Exception $e) {
             throw new Exception('Error fetching reports: ' . $e->getMessage());
         }
     }
 
-    public function getByPriority(string $priority): array
+    public function getByPriority(string $priority, $perPage = 15): LengthAwarePaginator
     {
         try {
-            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])->where('priority', $priority)->get();
-            return $reports->map(function ($report) {
+            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])->where('priority', $priority)->paginate($perPage);
+            $reports->getCollection()->transform(function ($report) {
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
@@ -53,24 +55,25 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
-            })->toArray();
+            });
+            return $reports;
         } catch (Exception $e) {
             throw new Exception('Error fetching reports by priority: ' . $e->getMessage());
         }
     }
 
-    public function getByStatus(string $status): array
+    public function getByStatus(string $status, $perPage = 15): LengthAwarePaginator
     {
         try {
-            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])->where('status', $status)->get();
-            return $reports->map(function ($report) {
+            $reports = Report::with(['room', 'good', 'building', 'category', 'user'])->where('status', $status)->paginate($perPage);
+            $reports->getCollection()->transform(function ($report) {
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
@@ -81,14 +84,15 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
-            })->toArray();
+            });
+            return $reports;
         } catch (Exception $e) {
             throw new Exception('Error fetching reports by status: ' . $e->getMessage());
         }
@@ -124,13 +128,13 @@ class ReportRepository implements ReportRepositoryInterface
         return Report::max('reportID') + 1;
     }
 
-    public function getByBuildingId($buildingID): array
+    public function getByBuildingId($buildingID, $perPage = 15): LengthAwarePaginator
     {
         try {
             $reports = Report::with(['room', 'good', 'building', 'category', 'user'])
                 ->where('buildingID', $buildingID)
-                ->get();
-            return $reports->map(function ($report) {
+                ->paginate($perPage);
+            $reports->getCollection()->transform(function ($report) {
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
@@ -141,26 +145,27 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
-            })->toArray();
+            });
+            return $reports;
         } catch (Exception $e) {
             throw new Exception('Error fetching reports by building ID: ' . $e->getMessage());
         }
     }
 
-    public function getOrderedByDate($order): array
+    public function getOrderedByDate(string $order, $perPage = 15): LengthAwarePaginator
     {
         try {
             $reports = Report::with(['room', 'good', 'building', 'category', 'user'])
                 ->orderBy('created_at', $order)
-                ->get();
-            return $reports->map(function ($report) {
+                ->paginate($perPage);
+            $reports->getCollection()->transform(function ($report) {
                 return new ReportEntity(
                     $report->reportID,
                     $report->folio,
@@ -171,14 +176,15 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
-            })->toArray();
+            });
+            return $reports;
         } catch (Exception $e) {
             throw new Exception('Error fetching reports ordered by date: ' . $e->getMessage());
         }
@@ -201,12 +207,12 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
             }
             return null;
@@ -283,12 +289,12 @@ class ReportRepository implements ReportRepositoryInterface
                     $report->priority,
                     $report->description,
                     $report->image,
-                    $report->user->username, 
+                    $report->user ? $report->user->username : null, // Manejar el caso en que user sea null
                     $report->status,
                     $report->requires_approval,
                     $report->involve_third_parties,
                     Carbon::parse($report->created_at)->format('Y-m-d H:i'),
-                    $report->user->id // Cambiar a userID
+                    $report->user ? $report->user->id : null // Manejar el caso en que user sea null
                 );
             }
             return null;

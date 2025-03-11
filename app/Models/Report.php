@@ -20,7 +20,7 @@ class Report extends Model
         'priority',
         'description',
         'image',
-        'id',
+        'userID',
         'status',
         'requires_approval',
         'involve_third_parties',
@@ -48,6 +48,6 @@ class Report extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id', 'id');
+        return $this->belongsTo(User::class, 'userID', 'id');
     }
 }
