@@ -13,6 +13,7 @@ use App\Core\Reports\UseCases\GetReportByFolio;
 use App\Core\Reports\UseCases\UpdateReport;
 use App\Core\Reports\UseCases\UpdateReportStatus;
 use App\Core\Reports\UseCases\CheckReportStatus;
+use App\Core\Reports\UseCases\GetReportById; // Asegúrate de importar la clase GetReportById
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Cloudinary\Configuration\Configuration;
@@ -32,6 +33,7 @@ class ReportController extends Controller
     private $updateReport;
     private $updateReportStatus;
     private $checkReportStatus;
+    private $getReportById; // Definir la propiedad getReportById
 
     public function __construct(
         GetAllReports $getAllReports, 
@@ -43,7 +45,8 @@ class ReportController extends Controller
         GetReportByFolio $getReportByFolio,
         UpdateReport $updateReport,
         UpdateReportStatus $updateReportStatus,
-        CheckReportStatus $checkReportStatus
+        CheckReportStatus $checkReportStatus,
+        GetReportById $getReportById // Inyectar la dependencia GetReportById
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
@@ -55,6 +58,7 @@ class ReportController extends Controller
         $this->updateReport = $updateReport;
         $this->updateReportStatus = $updateReportStatus;
         $this->checkReportStatus = $checkReportStatus;
+        $this->getReportById = $getReportById; // Asignar la dependencia a la propiedad
     }
 
     public function index(Request $request)
@@ -226,10 +230,14 @@ class ReportController extends Controller
                 'involve_third_parties' => 'required|boolean',
             ]);
 
-            $data = $request->all();
+            $data = $request->except('image'); // Excluir la imagen de los datos a actualizar
 
             // Obtener el reporte existente
-            $existingReport = $this->getReportByFolio->execute($reportID);
+            $existingReport = $this->getReportById->execute($reportID);
+
+            if (!$existingReport) {
+                return response()->json(['error' => 'Report not found'], 404);
+            }
 
             if ($request->hasFile('image')) {
                 // Configurar Cloudinary con los datos del .env
@@ -238,6 +246,9 @@ class ReportController extends Controller
                 // Subir la imagen a Cloudinary
                 $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
                 $data['image'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
+            } else {
+                // Mantener la imagen existente sin cambios
+                $data['image'] = $existingReport->image;
             }
 
             $report = $this->updateReport->execute($reportID, $data);

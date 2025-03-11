@@ -112,7 +112,7 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->userID, // Cambiar a userID
+                $report->id, // Cambiar a id
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties,
@@ -236,7 +236,7 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->userID, // Cambiar a userID
+                $report->id, // Cambiar a id
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties,
@@ -263,7 +263,7 @@ class ReportRepository implements ReportRepositoryInterface
                 $report->priority,
                 $report->description,
                 $report->image,
-                $report->userID, // Cambiar a userID
+                $report->id, // Cambiar a id
                 $report->status,
                 $report->requires_approval,
                 $report->involve_third_parties,
