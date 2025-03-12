@@ -13,7 +13,7 @@ use App\Core\Reports\UseCases\GetReportByFolio;
 use App\Core\Reports\UseCases\UpdateReport;
 use App\Core\Reports\UseCases\UpdateReportStatus;
 use App\Core\Reports\UseCases\CheckReportStatus;
-use App\Core\Reports\UseCases\GetReportById; // Asegúrate de importar la clase GetReportById
+use App\Core\Reports\UseCases\GetReportById; 
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Cloudinary\Configuration\Configuration;
@@ -21,7 +21,7 @@ use Cloudinary\Api\Upload\UploadApi;
 
 class ReportController extends Controller
 {
-    private const PER_PAGE = 15; // Definir una constante para el número de elementos por página
+    private const PER_PAGE = 15;
 
     private $getAllReports;
     private $getReportsByPriority;
@@ -33,7 +33,7 @@ class ReportController extends Controller
     private $updateReport;
     private $updateReportStatus;
     private $checkReportStatus;
-    private $getReportById; // Definir la propiedad getReportById
+    private $getReportById;
 
     public function __construct(
         GetAllReports $getAllReports, 
@@ -46,7 +46,7 @@ class ReportController extends Controller
         UpdateReport $updateReport,
         UpdateReportStatus $updateReportStatus,
         CheckReportStatus $checkReportStatus,
-        GetReportById $getReportById // Inyectar la dependencia GetReportById
+        GetReportById $getReportById 
     ) {
         $this->getAllReports = $getAllReports;
         $this->getReportsByPriority = $getReportsByPriority;
@@ -58,15 +58,15 @@ class ReportController extends Controller
         $this->updateReport = $updateReport;
         $this->updateReportStatus = $updateReportStatus;
         $this->checkReportStatus = $checkReportStatus;
-        $this->getReportById = $getReportById; // Asignar la dependencia a la propiedad
+        $this->getReportById = $getReportById; 
     }
 
     public function index(Request $request)
     {
         try {
-            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $perPage = $request->query('per_page', self::PER_PAGE); 
             $reports = $this->getAllReports->execute($perPage);
-            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = $reports->items();
             $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
@@ -82,9 +82,9 @@ class ReportController extends Controller
     public function getByPriority(Request $request, $priority)
     {
         try {
-            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $perPage = $request->query('per_page', self::PER_PAGE);
             $reports = $this->getReportsByPriority->execute($priority, $perPage);
-            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = $reports->items(); 
             $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
@@ -100,9 +100,9 @@ class ReportController extends Controller
     public function getByStatus(Request $request, $status)
     {
         try {
-            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $perPage = $request->query('per_page', self::PER_PAGE);
             $reports = $this->getReportsByStatus->execute($status, $perPage);
-            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = $reports->items(); 
             $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
@@ -118,9 +118,9 @@ class ReportController extends Controller
     public function getByBuildingId(Request $request, $buildingID)
     {
         try {
-            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $perPage = $request->query('per_page', self::PER_PAGE); 
             $reports = $this->getReportsByBuildingId->execute($buildingID, $perPage);
-            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = $reports->items(); 
             $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
@@ -157,16 +157,14 @@ class ReportController extends Controller
                 Configuration::instance(getenv('CLOUDINARY_URL'));
 
                 $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
-                $data['image'] = $uploadedFile['sedcure_url']; 
+                $data['image'] = $uploadedFile['secure_url']; 
             } else {
                 $data['image'] = null;
             }
 
-            // Generar el folio
             $nextId = $this->createReport->getNextId();
             $data['folio'] = 'REP' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
 
-            // Incluir el campo 'id' en los datos
             $data['id'] = $request->input('userID');
 
             $report = $this->createReport->execute($data);
@@ -174,7 +172,7 @@ class ReportController extends Controller
             return response()->json(['report' => $report], 201);
         } catch (Exception $e) {
             if ($path) {
-                Storage::disk('public')->delete($path); // Eliminar la imagen subida
+                Storage::disk('public')->delete($path); 
             }
             return response()->json(['error' => 'Error creating report: ' . $e->getMessage()], 500);
         }
@@ -183,9 +181,9 @@ class ReportController extends Controller
     public function getOrderedByDate(Request $request, $order)
     {
         try {
-            $perPage = $request->query('per_page', self::PER_PAGE); // Usar la constante PER_PAGE
+            $perPage = $request->query('per_page', self::PER_PAGE); 
             $reports = $this->getReportsOrderedByDate->execute($order, $perPage);
-            $reportsArray = $reports->items(); // Obtener los elementos paginados
+            $reportsArray = $reports->items(); 
             $reportsArray = array_map(function ($report) {
                 $reportArray = (array) $report;
                 $reportArray['userID'] = $reportArray['id'];
@@ -223,16 +221,15 @@ class ReportController extends Controller
                 'goodID' => 'required|exists:goods,goodID',
                 'priority' => 'required|in:Immediate,Normal',
                 'description' => 'required|string',
-                'image' => 'nullable|file|mimes:png,jpeg,jpg', // Validar como archivo .png, .jpeg, .jpg
+                'image' => 'nullable|file|mimes:png,jpeg,jpg', 
                 'userID' => 'required|exists:users,id',
-                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', // Actualizar validación
+                'status' => 'required|in:Enviado,Diagnosticado,En Proceso,Terminado', 
                 'requires_approval' => 'required|boolean',
                 'involve_third_parties' => 'required|boolean',
             ]);
 
-            $data = $request->except('image'); // Excluir la imagen de los datos a actualizar
+            $data = $request->except('image'); 
 
-            // Obtener el reporte existente
             $existingReport = $this->getReportById->execute($reportID);
 
             if (!$existingReport) {
@@ -240,14 +237,11 @@ class ReportController extends Controller
             }
 
             if ($request->hasFile('image')) {
-                // Configurar Cloudinary con los datos del .env
                 Configuration::instance(getenv('CLOUDINARY_URL'));
 
-                // Subir la imagen a Cloudinary
                 $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
-                $data['image'] = $uploadedFile['secure_url']; // Guardar la URL de la imagen
+                $data['image'] = $uploadedFile['secure_url']; 
             } else {
-                // Mantener la imagen existente sin cambios
                 $data['image'] = $existingReport->image;
             }
 
