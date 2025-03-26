@@ -157,7 +157,7 @@ class ReportController extends Controller
                 Configuration::instance(getenv('CLOUDINARY_URL'));
 
                 $uploadedFile = (new UploadApi())->upload($request->file('image')->getRealPath());
-                $data['image'] = $uploadedFile['sedcure_url']; 
+                $data['image'] = $uploadedFile['secure_url']; 
             } else {
                 $data['image'] = null;
             }
